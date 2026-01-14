@@ -39,7 +39,7 @@ export default function Home({ docsNavTree }: HomePageProps) {
               <div className={s.heroBadge}>
                 Homelab-first • Tailscale RPC • Docker + systemd
               </div>
-              <H1 className={s.heroTitle}>Ship services fast with yeet.</H1>
+              <H1 className={s.heroTitle}>Run services fast with yeet.</H1>
               <P className={s.heroSubtitle} weight="regular">
                 Yeet is a lightweight client + server setup for deploying and
                 managing services on remote Linux hosts. It’s optimized for a
