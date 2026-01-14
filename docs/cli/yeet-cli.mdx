@@ -342,6 +342,13 @@ Unmount a mount by name.
 yeet umount data-share
 ```
 
+### `yeet tailscale --setup [--client-secret=...]` (alias: `ts`)
+
+Interactive setup for the catch host's Tailscale OAuth client secret. The CLI
+walks you through creating a tag and a trust credential, then stores the
+`tskey-client-...` secret on the target host. Use `--client-secret` to skip
+the prompt.
+
 ### `yeet tailscale <svc> -- <tailscale args...>` (alias: `ts`)
 
 Run tailscale commands inside the service netns.
