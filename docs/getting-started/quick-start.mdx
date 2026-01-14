@@ -3,25 +3,9 @@ title: Quick Start
 description: Fastest path to a working yeet + catch install.
 ---
 
-This is the fastest path to a working install. It assumes you have a Linux host
-with Tailscale connected and systemd available.
-
-## 0) Install the toolchain (recommended: mise)
-
-If you already have Go in your `PATH`, skip this step. Otherwise:
-
-```bash
-curl https://mise.run | sh
-echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
-```
-
-Swap `zsh` for your shell (bash/fish/etc.) if needed.
-
-From the repo root, install tools (Go 1.25.5):
-
-```bash
-mise install
-```
+This is the TL;DR path to a working install. It assumes you have a Linux host
+with systemd and SSH access. You do not need Tailscale installed on either
+machine; yeet uses an embedded tsnet client for RPC.
 
 ## 1) Install yeet locally
 
@@ -37,18 +21,6 @@ Nightly build:
 curl -fsSL https://yeetrun.com/install.sh | sh -s -- --nightly
 ```
 
-From the repo root (dev):
-
-```bash
-go build ./cmd/yeet
-```
-
-Or install globally:
-
-```bash
-go install ./cmd/yeet
-```
-
 ## 2) Bootstrap catch on a host
 
 Use SSH to install the catch service on a remote host:
@@ -57,17 +29,9 @@ Use SSH to install the catch service on a remote host:
 yeet init root@<host>
 ```
 
-Or use the mise task:
-
-```bash
-mise run init-host -- root@<host>
-```
-
-If you use a non-root user, yeet will invoke sudo on the remote.
-
-By default, a repo checkout builds and uploads `catch`. To force GitHub releases
-instead (or when using a released yeet binary), add `--from-github`. Use
-`--nightly` to install the nightly build.
+If you use a non-root user, yeet will invoke sudo on the remote. `--from-github`
+installs the latest release instead of building locally; add `--nightly` for
+nightly.
 
 Note: this `<host>` is the **machine host** you SSH into. After install,
 `yeet run <svc>@<host>` uses the **catch host** (Tailscale/tsnet hostname).
@@ -84,7 +48,14 @@ yeet status
 Docker Compose (most common):
 
 ```bash
-yeet run <svc> ./compose.yml --net=svc,ts --ts-tags=tag:app
+yeet run <svc> ./compose.yml --net=lan
+```
+
+Find the service IP on your LAN:
+
+```bash
+yeet info <svc>
+yeet ip <svc>
 ```
 
 Dockerfile (built locally for the host’s arch, then pushed):

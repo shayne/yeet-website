@@ -47,7 +47,7 @@ hosts = ["yeet-hetz", "host-b"]
 name = "uptime-kuma"
 host = "yeet-hetz"
 payload = "./uptime-kuma/compose.yml"
-args = ["--net=svc,ts", "--ts-tags", "tag:app"]
+args = ["--net=lan"]
 
 [[services]]
 name = "api"

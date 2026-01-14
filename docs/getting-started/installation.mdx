@@ -5,9 +5,10 @@ description: Install yeet locally and bootstrap catch on a remote host.
 
 This is a personal homelab setup. The install flow assumes:
 
-- A Linux host with systemd and Tailscale connected to the same tailnet.
-- SSH access to the host.
-- Go toolchain on your workstation.
+- A Linux host with systemd.
+- SSH access to that host.
+- You can reach the host from your laptop (LAN or tailnet). You do **not** need
+  Tailscale installed locally; yeet embeds tsnet for RPC.
 
 ## Host terminology
 
@@ -15,24 +16,6 @@ This is a personal homelab setup. The install flow assumes:
 - **catch host (Tailscale/tsnet)**: the hostname that `yeet` targets for RPC
   (`CATCH_HOST`, `--host`, `@<host>`). After install, this is the tsnet name
   advertised by catch (default `catch` or `--tsnet-host`).
-
-## Toolchain (recommended: mise)
-
-If you already have Go in your `PATH`, you can skip mise and use the Go commands
-below. Otherwise:
-
-```bash
-curl https://mise.run | sh
-echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
-```
-
-Swap `zsh` for your shell (bash/fish/etc.) if needed.
-
-From the repo root, install tools (Go 1.25.5):
-
-```bash
-mise install
-```
 
 ## Install yeet
 
@@ -48,7 +31,7 @@ Nightly build:
 curl -fsSL https://yeetrun.com/install.sh | sh -s -- --nightly
 ```
 
-From the repo root (dev):
+From the repo root (source build):
 
 ```bash
 go build ./cmd/yeet
@@ -104,6 +87,23 @@ Then restart Docker:
 
 ```bash
 systemctl restart docker
+```
+
+## Development toolchain (optional)
+
+If you plan to work on yeet from source, install the toolchain via mise:
+
+```bash
+curl https://mise.run | sh
+echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
+```
+
+Swap `zsh` for your shell (bash/fish/etc.) if needed.
+
+From the repo root, install tools (Go 1.25.5):
+
+```bash
+mise install
 ```
 
 ## Manual catch install

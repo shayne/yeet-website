@@ -8,7 +8,14 @@ These are the core workflows used day-to-day. All examples use placeholders.
 ## Deploy a compose stack (most common)
 
 ```bash
-yeet run <svc> ./compose.yml --net=svc,ts --ts-tags=tag:app
+yeet run <svc> ./compose.yml --net=lan
+```
+
+Get the LAN IP:
+
+```bash
+yeet info <svc>
+yeet ip <svc>
 ```
 
 After your first run, yeet writes a `yeet.toml` in the project directory. You
