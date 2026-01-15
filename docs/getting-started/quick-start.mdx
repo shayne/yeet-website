@@ -29,9 +29,8 @@ Use SSH to install the catch service on a remote host:
 yeet init root@<host>
 ```
 
-If you use a non-root user, yeet will invoke sudo on the remote. `--from-github`
-installs the latest release instead of building locally; add `--nightly` for
-nightly.
+If you use a non-root user, yeet will invoke sudo on the remote. Add `--nightly`
+for nightly.
 
 Note: this `<host>` is the **machine host** you SSH into. After install,
 `yeet run <svc>@<host>` uses the **catch host** (Tailscale/tsnet hostname).
