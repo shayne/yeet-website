@@ -60,6 +60,7 @@ Examples:
 yeet run <svc>@<host> ./compose.yml
 yeet run <svc> ./compose.yml --net=lan
 yeet run --pull <svc> ./compose.yml
+yeet run --env-file=prod.env <svc> ./compose.yml
 yeet run <svc> ./Dockerfile
 yeet run <svc> ./bin/<svc> -- --app-flag value
 yeet run <svc> ghcr.io/org/app:latest
@@ -102,6 +103,10 @@ Run flags:
 - `--macvlan-vlan=<vlan>`: VLAN id for `lan`.
 - `--macvlan-mac=<mac>`: MAC address for `lan`.
 - `--restart=<bool>`: currently unused.
+- `--env-file=<path>`: upload an env file before deploying the payload.
+
+When `--env-file` is provided (or `yeet env copy` is used), yeet stores the env
+file path in `yeet.toml` and re-uploads it on future runs.
 
 See [Tailscale](/docs/concepts/tailscale) for setup, netns behavior, and Serve
 examples.
@@ -227,6 +232,13 @@ stop/cleanup failures are printed as warnings.
 
 Alias: `rm`.
 
+Flags:
+
+- `-y`/`--yes`: skip the removal prompt.
+- `--clean-config`: delete the `yeet.toml` entry for the service. Without this
+  flag, yeet prompts to keep or remove the local config after the service is
+  removed.
+
 ## Config, env, and files
 
 ### env show
@@ -241,6 +253,8 @@ Edit the env file for a service.
 ### env copy
 
 Upload a local env file. Alias: `env cp`.
+
+Also stores the env file path in `yeet.toml` for future runs.
 
 ### env set
 
