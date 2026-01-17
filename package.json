@@ -8,8 +8,8 @@
     "build:next": "next build",
     "build:cloudflare": "opennextjs-cloudflare build && opennextjs-cloudflare populateCache local",
     "start": "next start",
-    "preview:cloudflare": "npm run build:cloudflare && npx wrangler@latest dev",
-    "deploy:cloudflare": "npm run build:cloudflare && npx wrangler@latest deploy",
+    "preview:cloudflare": "npm run build:cloudflare && npx -y wrangler@latest dev",
+    "deploy:cloudflare": "npm run build:cloudflare && npx -y wrangler@latest deploy",
     "lint": "next lint && prettier 'src/**/*.ts' --write"
   },
   "dependencies": {
