@@ -3,6 +3,16 @@ title: Changelog
 description: Release notes for users deciding whether to install or upgrade.
 ---
 
+## July 25, 2026
+
+### v0.10.8
+
+- Automatic VM reboot reconciliation now keeps a newer host-pinned kernel when
+  a guest still reports an older kernel selector, so Ubuntu and NixOS guests do
+  not revert after installing a kernel update.
+- Removing VMs now removes their generated systemd unit files and clears stale
+  failure entries, preventing orphaned units from accumulating on Catch hosts.
+
 ## July 24, 2026
 
 ### v0.10.7
