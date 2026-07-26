@@ -5,6 +5,15 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ## July 25, 2026
 
+### v0.10.9
+
+- Tailscale-networked services now keep their service-specific resolver when
+  the host replaces `/etc/resolv.conf`, preventing public DNS and Let's Encrypt
+  failures after DNS changes or Catch upgrades.
+- Yeet-managed Tailscale updates now verify the binary selected for the service
+  generation, repairing stale version metadata instead of incorrectly
+  reporting that the service is already up to date.
+
 ### v0.10.8
 
 - Automatic VM reboot reconciliation now keeps a newer host-pinned kernel when
