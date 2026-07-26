@@ -27,8 +27,10 @@ yeet run --web <svc> ./compose.yml
 ```
 
 The form saves the same service config to `yeet.toml` that the CLI uses.
-Runtime errors appear in the browser and local terminal so you can edit and
-retry without restarting the command.
+Deploy progress appears in both the browser terminal and the local terminal.
+The browser keeps 1,000 lines of scrollback and reconnects to an in-progress
+deploy without restarting it. Runtime errors leave the form editable so you
+can correct the inputs and retry.
 
 ## Deploy a compose stack
 
