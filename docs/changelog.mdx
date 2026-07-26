@@ -5,6 +5,13 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ## July 25, 2026
 
+### v0.10.10
+
+- Removing a networked service now also removes its per-service resolver state,
+  preventing stale namespace configuration from accumulating on Catch hosts.
+- New Tailscale-networked services now use Tailscale 1.101.284 by default while
+  preserving explicit version selections.
+
 ### v0.10.9
 
 - Tailscale-networked services now keep their service-specific resolver when
