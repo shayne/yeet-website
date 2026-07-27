@@ -3,6 +3,18 @@ title: Changelog
 description: Release notes for users deciding whether to install or upgrade.
 ---
 
+## July 27, 2026
+
+### v0.10.11
+
+- `yeet run --web` now preserves and replays deploy output across temporary
+  browser stream disconnects and page refreshes, including terminal control
+  sequences during long VM launches and 1,000 lines of scrollback.
+- The web deploy terminal now follows live output until you scroll up, clears
+  before a retry, fits and resizes with its panel, and matches the surrounding
+  page surface.
+- Client and Catch builds now use gRPC 1.82.1 to address GO-2026-6061.
+
 ## July 25, 2026
 
 ### v0.10.10
