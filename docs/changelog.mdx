@@ -3,6 +3,16 @@ title: Changelog
 description: Release notes for users deciding whether to install or upgrade.
 ---
 
+## August 2, 2026
+
+### v0.10.12
+
+- Catch upgrades now preserve running services while shared networking is
+  refreshed, preventing route loss and connectivity interruptions.
+- ZFS-backed service-root migrations now preserve directory ownership,
+  preventing non-root containers and services from losing write access after
+  storage moves.
+
 ## July 27, 2026
 
 ### v0.10.11
