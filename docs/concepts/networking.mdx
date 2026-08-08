@@ -34,9 +34,63 @@ Modes are comma-separated:
 yeet run <svc> ./compose.yml --net=svc,ts --ts-tags=tag:app
 ```
 
+Use the `yeet run` network flags for the initial deployment. For an existing
+non-VM service, use `yeet service set` instead:
+
+```bash
+yeet service set <svc> --net=iso
+yeet service set <svc> --net=ts --ts-tags=tag:app
+yeet service set <svc> --net=host
+yeet service set <svc> --ts-exit=
+```
+
 VMs support `svc`, `lan`, `svc,lan`, and `iso`. A VM cannot combine `iso` with
 another Yeet-managed mode. VM networking does not support `ts`; install
 Tailscale inside the guest when it needs a tailnet identity.
+
+## Change an existing network
+
+`yeet service set` applies network changes to existing non-VM services. The
+change restarts the service immediately. If the replacement cannot be
+activated, Catch attempts to restore the previous network. If that rollback
+cannot be completed, Catch stops the service or quarantines its network state
+instead of leaving a partially active network. `yeet run` remains the payload
+deployment command. If its saved or supplied network settings differ from
+Catch's desired configuration, it stops with guidance to use
+`yeet service set` before changing the workload.
+
+The network flags form a patch:
+
+| Flag | Existing-service behavior |
+| --- | --- |
+| `--net` | Replace the complete mode set. Use `host` to leave managed networks. |
+| `--ts-tags` | Replace the tag list. Repeat the flag for multiple tags; use `--ts-tags=` to clear it. |
+| `--ts-ver` | Set the Tailscale version; use `--ts-ver=` to clear it. |
+| `--ts-exit` | Set the exit node; use `--ts-exit=` to clear it. |
+| `--ts-auth-key` | Supply a non-empty enrollment key for this operation only. Yeet does not display or save it. |
+| `--macvlan-parent` | Set the parent interface; use `--macvlan-parent=` to clear it. |
+| `--macvlan-vlan` | Set the VLAN; use `--macvlan-vlan=` to clear it. |
+| `--macvlan-mac` | Set the MAC address; use `--macvlan-mac=` to clear it. |
+
+Omitted fields keep their stored values. `--net=` is invalid. Whenever the
+resulting modes include `ts`, the resulting tag list must be non-empty. A
+service can inherit valid stored tags when it enters `ts`, but otherwise the
+same command must provide `--ts-tags`.
+
+Catch is authoritative after a successful remote mutation. If yeet cannot
+update the matching `yeet.toml` entry afterward, repair the local copy with:
+
+```bash
+yeet service sync <svc>
+```
+
+The non-VM flags above do not change VM networks. Keep VM mutations under
+`yeet vm set`:
+
+```bash
+yeet vm set <vm> --net=lan
+yeet vm set <vm> --net=svc,lan --macvlan-parent=vmbr0
+```
 
 ## Published ports
 
@@ -110,21 +164,20 @@ See [DNS](/docs/concepts/dns) for resolver behavior.
 
 ## Isolated network (`iso`)
 
-`iso` is for an untrusted VM guest or container workload that needs the public
-internet but should not be able to initiate connections to the host or private
-networks:
+`iso` is for a workload that needs the public internet but should not initiate
+connections to the host or private networks:
 
 ```bash
 yeet run <svc> nginx:alpine --net=iso
 yeet run <vm> vm://ubuntu/26.04 --net=iso
 ```
 
-Every VM and container component gets a stable RFC1918 IPv4 address. Catch can
-initiate connections to those addresses on any protocol or port, including the
-Catch-proxied path used by `yeet ssh <iso-vm>`. Return traffic is allowed. A
-workload cannot initiate a new flow to Catch, another ISO project, `svc`, LAN,
-CGNAT/Tailscale, link-local or metadata addresses, or other non-public IPv4
-space. Public IPv4 traffic is NATed through Catch.
+Every VM, native endpoint, and container component gets a stable RFC1918 IPv4
+address. Catch can initiate connections to those addresses on any protocol or
+port, including the Catch-proxied path used by `yeet ssh <iso-vm>`. Return
+traffic is allowed. A workload cannot initiate a new flow to Catch, another ISO
+project, `svc`, LAN, CGNAT/Tailscale, link-local or metadata addresses, or other
+non-public IPv4 space. Public IPv4 traffic is NATed through Catch.
 
 Components in one admitted Compose project may communicate with each other;
 the project is the isolation unit. Other Yeet projects cannot reach them.
@@ -135,20 +188,26 @@ private and IPv6 address answers, direct public DNS on port 53, and DNS over TLS
 on port 853. DNS over HTTPS looks like permitted HTTPS traffic, so ISO does not
 claim to block it. IPv6 is disabled for ISO attachments.
 
-ISO supports VMs, images, client-built Dockerfiles, Python, TypeScript, and an
-admitted subset of Compose. Native binaries, scripts, and cron jobs are
-rejected because their root-owned host processes can escape a network namespace.
-That requires a future non-root service sandbox. Compose is trusted deployment
-code: Catch resolves it through Docker and rejects host networking, published
-ports, privilege or host-namespace changes, unsafe mounts and sockets, custom
-DNS, extra networks, Catch-side builds, replicas, and unknown service fields
-before starting containers. One ISO Compose project supports up to 29 named
-components.
+ISO supports VMs, native binaries and scripts, timer-backed jobs, images,
+client-built Dockerfiles, Python, TypeScript, and an admitted subset of
+Compose. A native workload's generated systemd service joins the ISO namespace;
+a timer remains the scheduling unit while its invoked service joins the
+namespace. Network selection does not change `User=`, `Group=`, capabilities,
+or filesystem policy. Root and non-root native services use the same network
+path. ISO controls ordinary workload traffic; it is not containment against a
+host-root process.
 
-`iso` cannot combine with `svc` or `lan`. Non-VM services may use `iso,ts` to
-add a service-owned Tailscale identity; this is an explicit exception to the
-internet-only rule. VMs use `iso` alone and can install Tailscale inside the
-guest.
+Compose is trusted deployment code: Catch resolves it through Docker and
+rejects host networking, published ports, privilege or host-namespace changes,
+unsafe mounts and sockets, custom DNS, extra networks, Catch-side builds,
+replicas, and unknown service fields before starting containers. One ISO
+Compose project supports up to 29 named components.
+
+`iso` cannot combine with `svc` or `lan`. Supported container-backed services
+may use `iso,ts` to add a service-owned Tailscale identity; this is an explicit
+exception to the internet-only rule. Native binaries, scripts, and timer-backed
+jobs cannot combine `iso` with `ts`. VMs also use `iso` alone and can install
+Tailscale inside the guest.
 
 Catch selects and persists a non-overlapping RFC1918 `/16` before the first ISO
 allocation, preferring `172.30.0.0/16`. Set a different pool before any ISO
@@ -232,11 +291,12 @@ Tailscale exit node when a `ts`-only service needs internet access:
 yeet run <svc> ./compose.yml --net=ts --ts-tags=tag:app --ts-exit=<exit-node>
 ```
 
-For an existing Tailscale service, run Tailscale commands inside that service
-identity:
+For an existing Tailscale service, update the desired exit node through
+`service set`:
 
 ```bash
-yeet tailscale <svc> -- set --exit-node=<exit-node>
+yeet service set <svc> --ts-exit=<exit-node>
+yeet service set <svc> --ts-exit=
 ```
 
 Make sure the OAuth client saved during catch setup can assign every tag you
@@ -252,8 +312,8 @@ and `yeet tailscale` commands.
 | `svc` | The workload needs private yeet traffic, yeet DNS, or catch-host internet egress. | LAN clients need a LAN IP or tailnet clients need a service identity. |
 | `lan` | The workload should be a LAN or VLAN device. | The host network cannot provide DHCP, routing, or macvlan support. |
 | `ts` | The workload is deliberately tailnet-only, or an exit node handles internet egress. | The workload needs normal internet, yeet DNS, or private service traffic. |
-| `iso` | An untrusted VM or container needs public IPv4 egress and Catch-only ingress. | The workload must initiate traffic to Catch, LAN, `svc`, another project, or other private space. |
-| `iso,ts` | An isolated non-VM service also needs an explicit tailnet identity. | The workload is a VM, or plain ISO covers the access path. |
+| `iso` | A workload needs public IPv4 egress and Catch-only ingress. | The workload must initiate traffic to Catch, LAN, `svc`, another project, or other private space. |
+| `iso,ts` | A supported container-backed service needs isolation plus an explicit tailnet identity. | The workload is a VM, native binary or script, timer-backed job, or plain ISO covers the access path. |
 | `svc,ts` | The workload needs private yeet networking plus a tailnet identity. | The workload must appear as a LAN device. |
 | `lan,ts` | The LAN handles ordinary egress and the service also needs a tailnet identity. | The workload needs yeet DNS or private service traffic. |
 | `svc,lan` | A VM or service needs LAN presence plus yeet private networking. | The workload does not need the LAN. |
@@ -278,7 +338,7 @@ yeet ssh --force-proxy <vm>
 
 ## Check a network choice
 
-Inspect the current addresses and saved network model:
+Inspect the current addresses and desired/effective network model:
 
 ```bash
 yeet info <svc>
@@ -292,6 +352,9 @@ Use the output to confirm:
 - `ts` shows a tailnet address and Tailscale state.
 - `iso` shows the isolation state, public-egress and DNS policy, and stable VM
   or component endpoints.
+- `Network modes` always shows the effective modes, including `host`.
+- `Desired network modes` appears when a failed or quarantined transition left
+  desired and effective state different.
 
 If the service has no outbound internet, debug by network mode:
 

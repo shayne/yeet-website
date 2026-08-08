@@ -88,6 +88,11 @@ Common flags:
 - `--vcpus`, `--memory`, `--disk`: set initial VM resources.
 - `--image-policy=prompt|update|cached`: choose stale VM image behavior.
 
+Network flags on `run` define an initial deployment. For an existing non-VM
+service, a network difference stops before redeployment and directs you to
+`yeet service set <svc> ...`. Payload and unrelated configuration updates still
+use `yeet run` when the requested network matches Catch's desired state.
+
 Related guides:
 
 - [Payloads](/docs/payloads)
@@ -96,11 +101,13 @@ Related guides:
   egress paths
 - [ZFS](/docs/concepts/zfs)
 
-`iso` supports VMs and container-backed payloads. It cannot combine with `svc`
-or `lan`. Non-VM services may combine `iso,ts`; VMs use `iso` alone and can
-install Tailscale inside the guest. Native binaries, scripts, and cron jobs do
-not support ISO. Compose files pass a fail-closed safe-profile check before
-Catch starts containers.
+`iso` supports VMs, native binaries and scripts, timer-backed jobs, and
+container-backed payloads. It cannot combine with `svc` or `lan`. Supported
+container-backed services may combine `iso,ts`; VMs use `iso` alone and can
+install Tailscale inside the guest. Native and timer ISO networking is
+independent of `--run-as`; it does not change workload privileges or claim to
+contain a hostile host-root process. Compose files pass a fail-closed
+safe-profile check before Catch starts containers.
 
 ### `stage`
 
@@ -306,8 +313,32 @@ yeet service set <svc> --service-root=tank/apps/<svc> --zfs --copy
 yeet service set <svc> --run-as=yeet-svc
 yeet service set <svc> --run-as=app:app
 yeet service set <svc> --run-as=root
+yeet service set <svc> --net=iso
+yeet service set <svc> --net=ts --ts-tags=tag:app
+yeet service set <svc> --net=host
+yeet service set <svc> --ts-exit=
 yeet service set <svc> --snapshots=off
 yeet service set <svc> --snapshots=inherit
+```
+
+Network flags on `service set` apply only to existing non-VM services. The
+change restarts the service immediately. `--net` replaces the complete mode
+set. The remaining network flags patch one setting; `--ts-tags=`, `--ts-ver=`,
+`--ts-exit=`, `--macvlan-parent=`, `--macvlan-vlan=`, and `--macvlan-mac=`
+clear optional values. Omitted settings stay unchanged. `--net=` and an empty
+`--ts-auth-key` are invalid.
+
+The complete network family is `--net`, `--ts-tags`, `--ts-ver`, `--ts-exit`,
+`--ts-auth-key`, `--macvlan-parent`, `--macvlan-vlan`, and `--macvlan-mac`.
+Whenever the resulting modes include `ts`, the resulting tags must be
+non-empty. A supplied auth key is transient and never appears in info output or
+`yeet.toml`.
+
+VM network settings stay under `vm set`, not `service set`:
+
+```bash
+yeet vm set <vm> --net=lan
+yeet vm set <vm> --net=svc,lan --macvlan-parent=vmbr0
 ```
 
 Stop the service before moving a service root. Use `--copy` to copy the old
@@ -347,6 +378,10 @@ yeet service sync <svc>
 yeet service sync --all
 yeet service sync <svc> --config ./yeet.toml
 ```
+
+Use `service sync` when Catch applied a remote `service set` mutation but yeet
+could not update the local project file. Catch remains authoritative in that
+partial-success case.
 
 ## Docker
 
@@ -470,10 +505,14 @@ Stop the VM before changing VM resources or networking:
 ```bash
 yeet stop <vm>
 yeet vm set <vm> --vcpus=6 --memory=6g --disk=128g
-yeet vm set <vm> --net=svc,lan
+yeet vm set <vm> --net=lan
+yeet vm set <vm> --net=svc,lan --macvlan-parent=vmbr0
 yeet vm set <vm> --net=iso
 yeet start <vm>
 ```
+
+All existing VM network changes remain under `vm set`. The network flags on
+`service set` are for non-VM services.
 
 An ISO VM cannot combine `iso` with `svc`, `lan`, or Yeet-managed `ts`. Install
 Tailscale inside the guest when it needs a tailnet identity.

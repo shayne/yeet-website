@@ -128,11 +128,17 @@ show a ready isolation state, public egress, public-only DNS, and stable VM or
 component endpoints. A degraded or quarantined state includes the admission or
 reconciliation error Catch is refusing to ignore.
 
-If the service was running before a network change, restart it:
+Apply an existing service's network change through `service set`:
 
 ```bash
-yeet restart <svc>
+yeet service set <svc> --net=<modes>
 ```
+
+The command restarts and activates the service immediately. If activation
+fails, Catch attempts to restore the previous network. If rollback also fails,
+Catch stops the service or quarantines its network state instead of leaving a
+partially active network. Run `yeet info <svc>` again for the lifecycle state
+and error; a separate manual restart is not the network-activation step.
 
 See [Networking](/docs/concepts/networking) before changing modes on a shared
 host.
@@ -153,8 +159,8 @@ Use the mode to choose the next check:
 - `lan` and `lan,ts` use the DHCP gateway and DNS from the LAN or VLAN. Check
   that network's router, DHCP lease, and ACLs.
 - Plain `ts` is tailnet-only unless you configure a Tailscale exit node. Add
-  `svc`, use `--ts-exit=<exit-node>`, or run
-  `yeet tailscale <svc> -- set --exit-node=<exit-node>`.
+  `svc` or update the desired exit node with
+  `yeet service set <svc> --ts-exit=<exit-node>`.
 - `iso` allows globally reachable public IPv4 only. Private, link-local,
   metadata, CGNAT/Tailscale, special-purpose, and IPv6 destinations are expected
   to fail. Confirm Catch itself has internet access and the ISO state is ready.
@@ -165,8 +171,10 @@ ISO fails closed before start when the payload or resolved Compose model could
 bypass the boundary. Read the field path in the error. Common causes include:
 
 - Published ports or Compose `ports`.
-- `svc` or `lan` combined with `iso`, or any second Yeet-managed mode on an ISO VM.
-- Native binary, script, or cron payloads.
+- `svc` or `lan` combined with `iso`.
+- `iso,ts` on a VM, native binary or script, or timer-backed cron job. Native
+  and timer workloads support plain `iso`; only supported container-backed
+  services can combine it with `ts`.
 - Host networking, privilege or host-namespace changes, unsafe bind mounts or
   runtime sockets, custom DNS, extra networks, Catch-side builds, or replicas.
 - More than 29 active components or an unclassified Compose service field.
@@ -185,7 +193,8 @@ and IPv6 destinations. Components in the same admitted Compose project are the
 one private communication exception.
 
 Use another network mode when the workload legitimately needs private access.
-For a non-VM service that needs a tailnet identity, use `iso,ts`. For a VM,
+For a supported container-backed service that needs a tailnet identity, use
+`iso,ts`. Native and timer workloads cannot use that combination. For a VM,
 install Tailscale inside the guest. Do not add `svc` or `lan` to ISO; Yeet
 rejects those combinations.
 

@@ -149,10 +149,12 @@ exit node when a `ts`-only service needs internet access:
 yeet run <svc> ./compose.yml --net=ts --ts-tags=tag:app --ts-exit=<exit-node>
 ```
 
-For an existing Tailscale service:
+For an existing Tailscale service, update the desired exit node through
+`service set`:
 
 ```bash
-yeet tailscale <svc> -- set --exit-node=<exit-node>
+yeet service set <svc> --ts-exit=<exit-node>
+yeet service set <svc> --ts-exit=
 ```
 
 Use `iso,ts` when an isolated container-backed service needs both public IPv4
@@ -170,12 +172,30 @@ Yeet-managed `iso,ts` mode; install Tailscale inside the guest instead.
 Make sure the OAuth client saved during catch setup can assign every tag you
 pass with `--ts-tags`. If the credential cannot mint the tag, deployment fails.
 
+Use `yeet run` network flags when creating the service. Change an existing
+non-VM service through `yeet service set`:
+
+```bash
+yeet service set <svc> --net=ts --ts-tags=tag:app
+yeet service set <svc> --ts-exit=<exit-node>
+yeet service set <svc> --ts-exit=
+```
+
+`--net` replaces the complete mode set. The other supplied Tailscale flags
+patch one setting, and an explicit empty value clears tags, version, or exit
+node. Omitted values stay unchanged. Whenever the resulting modes include
+`ts`, the resulting tag list must be non-empty; existing valid tags can be
+inherited. Yeet uses `--ts-auth-key` only for the current enrollment and never
+shows it in info output or saves it to `yeet.toml`.
+
 Options:
 
-- `--ts-tags=<tag>` sets service tags.
+- `--ts-tags=<tag>` sets service tags. Repeat it to replace the list with
+  multiple tags.
 - `--ts-exit=<node>` uses a Tailscale exit node.
 - `--ts-ver=<ver>` selects a Tailscale version for the service.
-- `--ts-auth-key=<key>` passes a direct auth key for that service.
+- `--ts-auth-key=<key>` passes a transient, write-only auth key for the
+  operation.
 
 See [Networking](/docs/concepts/networking) for when to choose `svc`, `lan`,
 `ts`, `iso`, or a combination.

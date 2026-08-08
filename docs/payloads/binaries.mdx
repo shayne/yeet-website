@@ -6,9 +6,11 @@ description: Run one host process from a local executable or shebang script.
 Binary and script payloads become systemd services on the catch host. Use this
 path for a single long-running process that does not need a container.
 
-Native binaries and scripts cannot use `--net=iso`. The native ISO policy path
-is not implemented, so yeet rejects the combination instead of presenting an
-incomplete isolation boundary. Use a container-backed payload or VM for ISO.
+Native binaries, scripts, and timer-backed jobs can use `--net=iso`. Catch runs
+the service inside an ISO network namespace while leaving its user, group,
+capabilities, and filesystem policy unchanged. Root and non-root workloads use
+the same network path. ISO controls ordinary workload traffic; it does not
+claim to contain a hostile host-root process.
 
 This is the direct path. Build or write the thing, hand it to yeet, and catch
 installs it as a host service. The host must have any runtime dependencies the
@@ -69,6 +71,31 @@ configuration changes.
 ```bash
 yeet run --force <svc> ./bin/<svc>
 ```
+
+## Networking
+
+Choose a network during the first deployment:
+
+```bash
+yeet run <svc> ./bin/<svc> --net=iso
+yeet run <svc> ./script.sh --net=svc
+```
+
+Change an existing native service through `service set`. The network mutation
+restarts a long-running service immediately; a timer remains the scheduling
+unit and the change does not invoke its job as a verification side effect.
+
+```bash
+yeet service set <svc> --net=iso
+yeet service set <svc> --net=host
+```
+
+Network selection and `--run-as` are independent. One transaction can request
+both without treating root or non-root identity as a network requirement.
+Rerunning `yeet run` with different network settings for an existing service
+stops with `service set` guidance, while payload-only redeployments still work.
+If Catch applies the remote mutation but the local project update fails, run
+`yeet service sync <svc>`.
 
 Existing native services keep their current identity until an explicit
 migration. To adopt the managed default:

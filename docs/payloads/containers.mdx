@@ -127,6 +127,24 @@ yeet run <svc> ./compose.yml --net=lan
 yeet run <svc> ./compose.yml --net=iso
 ```
 
+These `yeet run` flags choose the initial network. Change an existing container
+service with `service set`; the mutation restarts it immediately:
+
+```bash
+yeet service set <svc> --net=iso
+yeet service set <svc> --net=ts --ts-tags=tag:app
+yeet service set <svc> --net=host
+yeet service set <svc> --ts-exit=
+```
+
+`--net` replaces all modes. Other supplied network flags patch one stored
+setting, and an explicit empty value clears an optional setting. A resulting
+mode set that includes `ts` requires at least one Tailscale tag. Rerunning
+`yeet run` with different network settings for an existing service stops with
+`service set` guidance; payload-only and unrelated redeployments still work.
+If the remote change succeeds but the local `yeet.toml` update fails, run
+`yeet service sync <svc>`.
+
 Avoid plain `--net=ts` unless the service is tailnet-only or has a Tailscale
 exit node. See [Networking](/docs/concepts/networking) for mode details and
 internet egress behavior.
