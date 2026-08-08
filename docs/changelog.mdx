@@ -5,6 +5,14 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ## August 8, 2026
 
+### v0.10.15
+
+- Interactive `yeet ssh <svc>` sessions now use the service account's usable
+  configured shell, then the Catch host user's preferred shell, with `/bin/sh`
+  as the fallback.
+- Native service shells keep the service's UID and GID, while Docker Compose
+  service shells remain host-side and normally run as root.
+
 ### v0.10.14
 
 - `yeet service set <svc> --run-as=...` now safely migrates existing native
