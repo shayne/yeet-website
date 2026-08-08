@@ -5,6 +5,15 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ## August 8, 2026
 
+### v0.10.14
+
+- `yeet service set <svc> --run-as=...` now safely migrates existing native
+  services, preserving staged binaries and environment files while applying
+  the new account and correct permissions.
+- Newly created `yeet-svc` and `yeet-vm` system accounts now share the same
+  explicit `/nonexistent` home and non-login account contract across supported
+  Linux distributions.
+
 ### v0.10.13
 
 - Existing non-VM services can change network modes and settings with
