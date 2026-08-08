@@ -3,6 +3,20 @@ title: Changelog
 description: Release notes for users deciding whether to install or upgrade.
 ---
 
+## August 8, 2026
+
+### v0.10.13
+
+- Existing non-VM services can change network modes and settings with
+  `yeet service set`, while stopped VMs use `yeet vm set`; network changes no
+  longer require removing and recreating the service.
+- Native binaries, scripts, and timer-backed jobs can use isolated networking,
+  and `yeet info` now reports the effective mode, isolated IP, namespace,
+  egress, and DNS without duplicate internal lifecycle labels.
+- Yeet skips writes when a declaratively managed client config already contains
+  the requested host and workspaces, so init works with immutable Home Manager
+  or Nix symlinks while real changes still explain how to update the source.
+
 ## August 2, 2026
 
 ### v0.10.12
