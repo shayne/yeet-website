@@ -60,10 +60,9 @@ For homelab services, use a
 [Service Workspace](/docs/getting-started/service-workspace) so Compose files,
 env files, Dockerfiles, scripts, binaries, and `yeet.toml` stay together.
 
-`yeet run --web` writes the same project config entries as the matching CLI
-path (`yeet run` or `yeet cron`). Payload paths, env files, service-root
-settings, ZFS flags, snapshot overrides, cron schedules, and payload args are
-saved in `yeet.toml` the same way.
+`yeet run --web` writes the same project config entries as `yeet run`. Payload
+paths, env files, service-root settings, ZFS flags, snapshot overrides, cron
+schedules, and payload args are saved in `yeet.toml` the same way.
 
 Yeet first looks for `yeet.toml` in or above the current directory. If none is
 found, it falls back to the registered workspace that owns the target catch
@@ -103,21 +102,19 @@ args = ["--listen", ":9100"]
 [[services]]
 name = "backup"
 host = "morpheus-catch"
-type = "cron"
 payload = "./jobs/backup.sh"
 schedule = "0 3 * * *"
-args = ["--target", "nas"]
+run_as = "backup"
+args = ["--net=iso", "--", "--full"]
 ```
 
 Notes:
 
 - Yeet stores `payload` relative to the `yeet.toml` directory when possible.
-- `type` is optional; omit it (or set `run`) for `yeet run`, and set `cron` for
-  `yeet cron`.
-- `args` stores run flags followed by payload args, with the `--` separator
-  removed. Yeet re-inserts `--` when needed to re-run the service. For cron,
-  these are the binary args after `--`.
-- `schedule` is the 5-field cron expression for `type = "cron"`.
+- `schedule` is the sole marker for a scheduled native service and contains its
+  five-field cron expression. Do not set `type` for scheduled services.
+- `args` keeps run control flags before `--` and binary or script arguments
+  after `--`.
 - `hosts` controls host-scoped commands like `yeet status` with no args.
 
 If the live host state changes from another checkout, use `yeet service sync`

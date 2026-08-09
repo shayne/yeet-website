@@ -134,10 +134,10 @@ If this fails while Docker payloads work, inspect the unit with:
 yeet ssh -- systemctl status yeet-smoke-script.service
 ```
 
-## 4) Smoke-test cron payloads
+## 4) Smoke-test a scheduled job
 
-Cron payloads are systemd timers. This validates timer creation and one
-scheduled run.
+Scheduled native jobs use systemd timers. This validates timer creation and
+one scheduled run.
 
 ```bash
 cat > yeet-smoke-cron.sh <<'EOF'
@@ -147,7 +147,7 @@ date
 EOF
 chmod +x yeet-smoke-cron.sh
 
-yeet cron yeet-smoke-cron ./yeet-smoke-cron.sh "* * * * *"
+yeet run yeet-smoke-cron ./yeet-smoke-cron.sh --cron="* * * * *"
 yeet status yeet-smoke-cron
 sleep 70
 yeet logs yeet-smoke-cron

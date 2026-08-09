@@ -103,8 +103,8 @@ setup.
 ## Run a cron job
 
 ```bash
-yeet cron <svc> ./job.sh "0 9 * * *"
-yeet cron <svc> ./job.sh "0 9 * * *" -- --job-arg foo
+yeet run <svc> ./job.sh --cron="0 9 * * *"
+yeet run <svc> ./job.sh --cron="0 9 * * *" -- --job-arg foo
 yeet logs -f <svc>
 ```
 

@@ -82,7 +82,7 @@ Use `--` when arguments belong to the service payload instead of yeet:
 
 ```bash
 yeet run <svc> ./bin/<svc> -- --flag value
-yeet cron <svc> ./job.sh "0 9 * * *" -- --job-arg foo
+yeet run <svc> ./job.sh --cron="0 9 * * *" -- --job-arg foo
 ```
 
 This keeps yeet flags and application flags separate. Without the separator,

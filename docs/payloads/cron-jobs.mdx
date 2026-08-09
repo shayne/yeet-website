@@ -3,10 +3,12 @@ title: Cron Jobs
 description: Install scheduled scripts or binaries as systemd timers.
 ---
 
-Cron payloads install a script or binary as a scheduled job. Catch implements
-them as systemd timer units, while yeet accepts a five-field cron expression.
+Add `--cron` to `yeet run` to install a native binary or shebang script as a
+scheduled job. Catch implements the schedule as a systemd timer and accepts a
+five-field cron expression.
 
 Cron jobs are still services. They have logs, state, cleanup, and saved config.
+Container, Compose, and VM payloads cannot use `--cron`.
 
 Cron jobs can use `iso` networking. The timer remains the scheduling unit, and
 the invoked systemd service joins the ISO network namespace. Changing the
@@ -16,21 +18,21 @@ host-root process.
 
 Run these commands from a
 [Service Workspace](/docs/getting-started/service-workspace). The first
-successful cron install writes `yeet.toml` in the current directory.
+successful scheduled install writes `yeet.toml` in the current directory.
 
 ## Create a job
 
 ```bash
-yeet cron <svc> ./job.sh "0 9 * * *"
-yeet cron <svc> ./job.sh "0 9 * * *" --run-as=backup
-yeet cron <svc> ./job.sh "0 9 * * *" --net=iso
-yeet cron <svc> ./job.sh "0 9 * * *" -- --job-arg foo
+yeet run backup ./backup --cron="0 3 * * *" --run-as=backup --net=iso -- --full
 ```
 
-New jobs run as the shared `yeet-svc` account by default. `--run-as` selects a
+Flags before `--` control the scheduled service. Arguments after `--` belong to
+the binary or script. Scheduled jobs retain the native run options for
+environment files, service roots, ZFS, snapshots, and payload arguments.
+
+Jobs run as the shared `yeet-svc` account by default. `--run-as` selects a
 different existing host account, and yeet saves that identity for later runs.
-Existing jobs keep their current identity until you migrate one explicitly
-with `yeet service set <svc> --run-as=yeet-svc`.
+Use `yeet service set <svc> --run-as=yeet-svc` to change the identity.
 
 Change the network for an existing job through `service set`:
 
@@ -44,18 +46,23 @@ runs.
 
 ## Update a job
 
-Re-run `yeet cron` with the new payload or schedule.
+Run the service with a non-empty `--cron` value to replace its schedule:
 
 ```bash
-yeet cron <svc> ./job.sh "30 2 * * *"
+yeet run <svc> ./job.sh --cron="30 2 * * *"
 ```
 
-If a `yeet.toml` exists, or after the first successful cron install, you can
-omit the payload and expression to replay the saved job:
+Omitting `--cron` preserves the installed schedule. If `yeet.toml` contains
+the service, you can omit both the payload and `--cron` to replay its saved
+configuration:
 
 ```bash
-yeet cron <svc>
+yeet run <svc>
 ```
+
+The saved `schedule` marks the service as scheduled. To return the name to
+ordinary service mode, remove it with `yeet rm` and recreate it without
+`--cron`.
 
 ## Environment and files
 
@@ -75,14 +82,12 @@ write persistent state or process files under their managed data directory. If
 the job only prints a heartbeat, a normal service root is usually enough.
 
 ```bash
-yeet cron <svc> ./job.sh "0 9 * * *"
-yeet stop <svc>
-yeet service set <svc> --service-root=tank/jobs/<svc> --zfs --copy
+yeet run <svc> ./job.sh --cron="0 9 * * *" --service-root=tank/jobs/<svc> --zfs
 ```
 
-Cron installs use `yeet cron`; service-root moves happen afterward through
-`yeet service set`. Stop the job before moving its root. See
-[ZFS](/docs/concepts/zfs) for service-root and snapshot behavior.
+Use `yeet service set` to move an installed job to another root. Stop the job
+before moving its root. See [ZFS](/docs/concepts/zfs) for service-root and
+snapshot behavior.
 
 ## Inspect and clean up
 

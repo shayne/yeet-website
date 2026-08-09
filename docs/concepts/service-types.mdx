@@ -107,8 +107,9 @@ will use before the command changes anything.
 
 ## Cron
 
-- `yeet cron` installs a cron-style job as a timer on the host.
-- New jobs run as `yeet-svc` by default and accept
+- `yeet run <svc> <payload> --cron="..."` installs a native binary or script
+  as a timer-backed job on the host.
+- Jobs run as `yeet-svc` by default and accept
   `--run-as=<user>[:<group>]`.
 - The invoked service can use `iso`; the timer remains the scheduling unit.
 - See [Cron Jobs](/docs/payloads/cron-jobs).

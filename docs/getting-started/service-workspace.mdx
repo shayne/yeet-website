@@ -3,9 +3,9 @@ title: Service Workspace
 description: Keep payload files and yeet.toml together so deploy state has one obvious home.
 ---
 
-Use a service workspace before your first `yeet run` or `yeet cron`. A
-directory such as `~/yeet-services` keeps third-party Compose apps, env files,
-custom Dockerfiles, scripts, binaries, and `yeet.toml` together.
+Use a service workspace before your first `yeet run`. A directory such as
+`~/yeet-services` keeps third-party Compose apps, env files, custom
+Dockerfiles, scripts, binaries, and `yeet.toml` together.
 
 Run deploy and service commands from this directory when you are working on the
 payload files. Yeet first looks for `yeet.toml` in or above the current
@@ -103,8 +103,8 @@ Put scheduled jobs beside the rest of the homelab payloads:
 
 ```bash
 cd ~/yeet-services
-yeet cron backup ./jobs/backup.sh "0 3 * * *"
-yeet cron private-backup ./jobs/backup.sh "0 3 * * *" --run-as=backup
+yeet run backup ./jobs/backup.sh --cron="0 3 * * *"
+yeet run private-backup ./jobs/backup.sh --cron="0 3 * * *" --run-as=backup
 ```
 
 ## Re-run saved services
@@ -152,7 +152,7 @@ a letter and end with a letter or number.
 
 - [Quick Start](/docs/getting-started/quick-start) installs yeet and catch.
 - [Payloads](/docs/payloads) helps choose Compose, Dockerfile, binary, script,
-  cron, or VM payloads.
+  or VM payloads, including scheduled native jobs.
 - [Workflows](/docs/operations/workflows) shows daily deploy and update
   commands.
 - [Configuration](/docs/concepts/configuration-and-prefs) explains

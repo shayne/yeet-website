@@ -3,8 +3,8 @@ title: Payloads
 description: Choose the right deploy path for the thing you already have.
 ---
 
-A payload is the thing you give to `yeet run`, `yeet stage`, or `yeet cron`.
-Choose the guide that matches what you already have.
+A payload is the thing you give to `yeet run` or `yeet stage`. Choose the guide
+that matches what you already have.
 
 Choose the smallest payload type that matches the workload. Use a VM only when
 the service needs a full guest OS or stronger isolation.
@@ -49,7 +49,7 @@ the service needs a full guest OS or stronger isolation.
 
 ## Create a workspace first
 
-Before your first `yeet run` or `yeet cron`, create or enter a
+Before your first `yeet run`, create or enter a
 [Service Workspace](/docs/getting-started/service-workspace). A successful
 deploy writes `yeet.toml` in the current directory, so the workspace is where
 yeet saves relative payload paths and future run options.

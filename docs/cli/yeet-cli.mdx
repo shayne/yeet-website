@@ -54,6 +54,7 @@ yeet run -p 8080:80 <svc> nginx:alpine
 yeet run <svc> ./Dockerfile
 yeet run <svc> ./bin/<svc> -- --app-flag value
 yeet run <svc> ./bin/<svc> --run-as=app:app
+yeet run <svc> ./job.sh --cron="0 9 * * *" -- --job-arg foo
 yeet run <vm> vm://ubuntu/26.04
 ```
 
@@ -82,7 +83,10 @@ Common flags:
 - `--service-root=<path-or-dataset>`: choose the initial service root.
 - `--zfs`: treat `--service-root` as a ZFS dataset.
 - `--run-as=<user>[:<group>]`: run a native binary or script as an existing
-  host account. New native services default to `yeet-svc`.
+  host account. Native services default to `yeet-svc`.
+- `--cron="M H DOM MON DOW"`: schedule a native binary or script. Omitting the
+  flag on later runs preserves an installed schedule; a non-empty value
+  replaces it.
 - `--snapshots=on|off|inherit`: override service snapshot policy.
 - `--env-file=<path>`: upload an environment file before deploy.
 - `--vcpus`, `--memory`, `--disk`: set initial VM resources.
@@ -121,20 +125,18 @@ yeet stage <svc> commit
 yeet stage <svc> clear
 ```
 
-### `cron`
+### Scheduled jobs
 
-Install or update a scheduled job:
+Use `run --cron` to install or update a scheduled native binary or script:
 
 ```bash
-yeet cron <svc> ./job.sh "0 9 * * *"
-yeet cron <svc> ./job.sh "0 9 * * *" --run-as=backup
-yeet cron <svc> ./job.sh "0 9 * * *" -- --job-arg foo
-yeet cron <svc>
+yeet run backup ./backup --cron="0 3 * * *" --run-as=backup --net=iso -- --full
+yeet run <svc>
 ```
 
-New cron jobs run as `yeet-svc`; use `--run-as=<user>[:<group>]` to select a
-different existing host account. Use [Cron Jobs](/docs/payloads/cron-jobs) for
-timer behavior.
+The second command replays saved configuration and preserves the installed
+schedule. Returning to ordinary service mode requires `yeet rm` and recreation
+without `--cron`. Use [Cron Jobs](/docs/payloads/cron-jobs) for timer behavior.
 
 ## Observe And Control
 
