@@ -44,9 +44,10 @@ yeet service set <svc> --net=host
 Yeet saves arguments after `--` as payload args and replays them on future
 runs.
 
-## Update a job
+## Redeploy a job
 
-Run the service with a non-empty `--cron` value to replace its schedule:
+Redeploy a scheduled payload with a non-empty `--cron` value to replace its
+schedule:
 
 ```bash
 yeet run <svc> ./job.sh --cron="30 2 * * *"
@@ -63,6 +64,22 @@ yeet run <svc>
 The saved `schedule` marks the service as scheduled. To return the name to
 ordinary service mode, remove it with `yeet rm` and recreate it without
 `--cron`.
+
+## Change only the schedule
+
+Change the timing of an installed scheduled native binary or script without a
+local payload:
+
+```bash
+yeet service set backup --cron="30 2 * * *"
+```
+
+`service set --cron` works only for an already scheduled native service. It
+never converts an ordinary, container, or VM service into a scheduled service.
+It cannot clear a schedule or combine with another service mutation, and it
+preserves the server-side payload and other settings. After Catch updates the
+schedule, yeet updates a matching `yeet.toml`. Run `yeet service sync <svc>` if
+the local config is absent or cannot be saved.
 
 ## Environment and files
 

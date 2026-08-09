@@ -3,6 +3,22 @@ title: Changelog
 description: Release notes for users deciding whether to install or upgrade.
 ---
 
+## August 9, 2026
+
+### v0.10.16
+
+- Native scheduled jobs now deploy through `yeet run <svc> <payload> --cron="..."`,
+  and existing jobs can change timing without a local payload through
+  `yeet service set <svc> --cron="..."`; both paths preserve the job's native
+  identity, arguments, storage, and supported network isolation.
+- Redeploying a scheduled job, including a config-only `yeet run <svc>`, keeps
+  its schedule, execution identity, payload arguments, and network settings;
+  scheduled services cannot be silently converted into ordinary or VM
+  workloads.
+- Removing an isolated scheduled job now cleans up its service, timer, and
+  network units reliably, while partial cleanup failures remain retryable
+  instead of deleting service state early.
+
 ## August 8, 2026
 
 ### v0.10.15

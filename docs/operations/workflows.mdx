@@ -103,12 +103,23 @@ setup.
 ## Run a cron job
 
 ```bash
-yeet run <svc> ./job.sh --cron="0 9 * * *"
-yeet run <svc> ./job.sh --cron="0 9 * * *" -- --job-arg foo
+yeet run backup ./backup --cron="0 3 * * *" --run-as=backup --net=iso -- --full
 yeet logs -f <svc>
 ```
 
-Use [Cron Jobs](/docs/payloads/cron-jobs) for timer behavior and update flow.
+`run --cron` deploys or redeploys a scheduled native binary or script. Change
+only an installed scheduled native service's timing without a payload:
+
+```bash
+yeet service set backup --cron="30 2 * * *"
+```
+
+`service set --cron` never converts an ordinary, container, or VM service into
+a scheduled service. It cannot clear a schedule or combine with another service
+mutation, and preserves the server-side payload and other settings. Yeet updates
+a matching `yeet.toml` after Catch succeeds; run `yeet service sync <svc>` when
+the local config is absent or cannot be saved. Use
+[Cron Jobs](/docs/payloads/cron-jobs) for timer behavior and update flow.
 
 ## Create a VM
 

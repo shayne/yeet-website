@@ -127,7 +127,7 @@ yeet stage <svc> clear
 
 ### Scheduled jobs
 
-Use `run --cron` to install or update a scheduled native binary or script:
+Use `run --cron` to deploy or redeploy a scheduled native binary or script:
 
 ```bash
 yeet run backup ./backup --cron="0 3 * * *" --run-as=backup --net=iso -- --full
@@ -136,7 +136,14 @@ yeet run <svc>
 
 The second command replays saved configuration and preserves the installed
 schedule. Returning to ordinary service mode requires `yeet rm` and recreation
-without `--cron`. Use [Cron Jobs](/docs/payloads/cron-jobs) for timer behavior.
+without `--cron`. To change timing without a local payload, use
+`yeet service set <svc> --cron="..."`. It works only for an existing scheduled
+native binary or script, never converts an ordinary, container, or VM service,
+cannot clear a schedule or combine with another service mutation, and preserves
+the server-side payload and other settings. After Catch applies it, yeet updates
+a matching `yeet.toml`; run `yeet service sync <svc>` if the local config is
+absent or cannot be saved. Use
+[Cron Jobs](/docs/payloads/cron-jobs) for timer behavior.
 
 ## Observe And Control
 
@@ -310,6 +317,7 @@ Change settings that require an explicit service update:
 ```bash
 yeet service set <svc> -p 80:80 -p 443:443
 yeet service set <svc> --publish-reset -p 443:443
+yeet service set backup --cron="30 2 * * *"
 yeet service set <svc> --service-root=/srv/apps/<svc> --copy
 yeet service set <svc> --service-root=tank/apps/<svc> --zfs --copy
 yeet service set <svc> --run-as=yeet-svc
@@ -322,6 +330,13 @@ yeet service set <svc> --ts-exit=
 yeet service set <svc> --snapshots=off
 yeet service set <svc> --snapshots=inherit
 ```
+
+`service set --cron` changes only the schedule of an already scheduled native
+binary or script. It never converts an ordinary, container, or VM service into
+a scheduled service, cannot clear a schedule or combine with another service
+mutation, and preserves the server-side payload and other settings. After
+Catch applies the change, yeet updates a matching `yeet.toml`; run
+`yeet service sync <svc>` if the local config is absent or cannot be saved.
 
 Network flags on `service set` apply only to existing non-VM services. The
 change restarts the service immediately. `--net` replaces the complete mode
