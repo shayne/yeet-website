@@ -3,6 +3,21 @@ title: Changelog
 description: Release notes for users deciding whether to install or upgrade.
 ---
 
+## August 10, 2026
+
+### v0.10.17
+
+- Fresh native binaries, scripts, and scheduled jobs now run in a Bubblewrap
+  filesystem and namespace sandbox by default, with writable service data,
+  private temporary directories, and only the runtime paths they need.
+- Existing native services remain in `legacy` mode until each service is set
+  explicitly to sandbox `on` or `off`; repeatable read-only file/directory and
+  writable-directory controls support optional path remapping and guarded list
+  replacement.
+- Fresh Catch setup and native activations that result in sandbox state `on`
+  install and verify Bubblewrap progressively, while ordinary Yeet or Catch
+  upgrades and services that remain `legacy` or `off` do not install it.
+
 ## August 9, 2026
 
 ### v0.10.16

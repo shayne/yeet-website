@@ -249,6 +249,53 @@ yeet run <svc> ./bin/<svc>
 
 Use the host's actual architecture when it is not amd64.
 
+## Native sandbox activation fails
+
+Read the activation error before changing host policy. Catch refuses to fall
+back from sandbox state `on` to direct execution. Common causes are a missing or
+old Bubblewrap package, unsafe ownership or permissions on `/usr/bin/bwrap`, a
+disabled user-namespace path, or an AppArmor denial.
+
+On an apt-managed Debian or Ubuntu host, refresh package metadata, install the
+package, and confirm the trusted path answers:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y bubblewrap
+/usr/bin/bwrap --version
+```
+
+The version command is only a package check. Catch also runs a functional
+namespace probe under the workload's real UID and GID before activation.
+
+Inspect user-namespace and AppArmor state without changing it globally:
+
+```bash
+sysctl kernel.unprivileged_userns_clone
+sudo aa-status
+sudo journalctl -k --grep='apparmor\|DENIED\|userns'
+```
+
+Some kernels do not expose `kernel.unprivileged_userns_clone`; use the Catch
+error and kernel security logs as the authoritative evidence on those hosts.
+If the distribution package is absent or too old, install an
+operator-managed compatible Bubblewrap that provides a trusted
+`/usr/bin/bwrap`. Yeet does not supply a sysctl workaround, disable AppArmor,
+or relax host-wide user-namespace restrictions.
+
+Path validation errors name the rejected source or destination. A read-only
+exposure can be a regular file or directory. A writable exposure must be a
+directory. Sources and destinations must be absolute, and destinations cannot
+overlap the fixed sandbox view or another exposure.
+
+Use `--sandbox=off` only as a deliberate workload policy choice, not as a
+package-install workaround. When editing dormant exposures on an `off` service,
+repeat `--sandbox=off` in that command. Exposure flags without an explicit
+state result in `on` and run the Bubblewrap installation and activation checks.
+See
+[Native Sandboxing](/docs/concepts/native-sandboxing) for states, exposures,
+and the security boundary.
+
 ## `edit` fails without a TTY
 
 `yeet edit` and `yeet env edit` launch an editor. Run them from an interactive

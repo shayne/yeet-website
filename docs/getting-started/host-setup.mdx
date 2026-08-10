@@ -9,15 +9,16 @@ checks optional host features such as Docker, ZFS, and VM support.
 
 ## Common lookups
 
-| Question                                            | Start here                                        |
-| --------------------------------------------------- | ------------------------------------------------- |
-| Which host name goes where?                         | [Host names](#host-names)                         |
-| What is the default catch hostname?                 | [Host names](#host-names)                         |
-| How do I install release or nightly yeet?           | [CLI install](#cli-install)                       |
-| What Tailscale policy and OAuth setup are required? | [Tailscale access](#tailscale-access)             |
-| What does `yeet init` prompt for?                   | [Bootstrap catch](#bootstrap-catch)               |
-| How do I upgrade yeet and catch?                    | [Upgrade yeet and catch](#upgrade-yeet-and-catch) |
-| Can this host run containers, VMs, or ZFS roots?    | [Host requirements](#host-requirements)           |
+| Question                                            | Start here                                              |
+| --------------------------------------------------- | ------------------------------------------------------- |
+| Which host name goes where?                         | [Host names](#host-names)                               |
+| What is the default catch hostname?                 | [Host names](#host-names)                               |
+| How do I install release or nightly yeet?           | [CLI install](#cli-install)                             |
+| What Tailscale policy and OAuth setup are required? | [Tailscale access](#tailscale-access)                   |
+| What does `yeet init` prompt for?                   | [Bootstrap catch](#bootstrap-catch)                     |
+| When does Catch install Bubblewrap?                 | [Native sandbox dependency](#native-sandbox-dependency) |
+| How do I upgrade yeet and catch?                    | [Upgrade yeet and catch](#upgrade-yeet-and-catch)       |
+| Can this host run containers, VMs, or ZFS roots?    | [Host requirements](#host-requirements)                 |
 
 ## Host names
 
@@ -150,7 +151,7 @@ What changes by case:
 | ------------------------------ | ----------------------------------------------------------------------------------------------- |
 | First catch enrollment         | Prompts for the Tailscale OAuth client secret.                                                  |
 | Fresh storage setup            | Uses `/var/lib/yeet` for Catch state, with services under `/var/lib/yeet/services`.             |
-| Native service account         | Creates the unprivileged `yeet-svc` account when it is not already present.                    |
+| Native service account         | Creates the unprivileged `yeet-svc` account when it is not already present.                     |
 | Existing catch install         | Upgrades catch. An exact recorded legacy layout can be offered the guided move described below. |
 | Missing Debian/Ubuntu packages | Asks before installing supported dependencies such as Docker or VM tools.                       |
 | Non-root SSH user              | Runs the remote install with sudo.                                                              |
@@ -170,6 +171,32 @@ Only the native workload unit drops privilege. Catch, Tailscale, VM and
 networking helpers, and storage migration helpers continue to run with the host
 privileges they require. Docker users remain controlled by Compose, and VM
 application users remain controlled inside the guest.
+
+### Native sandbox dependency
+
+Fresh native binaries, shebang scripts, and scheduled jobs run through
+Bubblewrap. Catch installs and functionally probes `/usr/bin/bwrap` without an
+extra prompt at three intent boundaries:
+
+1. A genuinely fresh Catch installation.
+2. A new native run or another native activation whose resulting sandbox state
+   is `on`.
+3. `yeet service set` when the resulting sandbox state is `on`.
+
+Installing or upgrading Yeet does not install Bubblewrap. Upgrading an existing
+Catch installation does not install it either. Existing `legacy` services,
+services explicitly set to `off`, and exposure edits that explicitly repeat
+`--sandbox=off` in the same command do not require it. An exposure-only edit of
+an `off` service results in `on`, so Catch installs and probes Bubblewrap before
+activation. See [Native Sandboxing](/docs/concepts/native-sandboxing) for the
+exact dormant-edit command.
+
+Catch verifies ownership and permissions on the binary and runs a functional
+namespace probe before activating a sandboxed service. It never disables
+AppArmor or relaxes host-wide user-namespace policy to make the probe pass.
+See
+[Native sandbox activation fails](/docs/operations/troubleshooting#native-sandbox-activation-fails)
+for package and policy checks.
 
 The service root defaults to `<data-dir>/services`. Pass `--data-dir` or
 `--services-root` when the host needs a different filesystem path. Explicit
@@ -292,6 +319,13 @@ Base host:
 - Linux with systemd.
 - SSH access from your workstation.
 - A catch tag allowed by your Tailscale policy.
+
+Native payloads:
+
+- A compatible Bubblewrap at the trusted `/usr/bin/bwrap` path.
+- Kernel and host security policy that allow the functional user-namespace
+  probe. Catch installs the package automatically on supported apt-managed
+  Debian/Ubuntu hosts at the intent boundaries above.
 
 Container payloads:
 

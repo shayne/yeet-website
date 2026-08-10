@@ -100,6 +100,42 @@ yeet run <svc> ./script.sh -- --app-flag value
 Use [Binaries & Scripts](/docs/payloads/binaries) for environment and file
 setup.
 
+Fresh native binaries and scripts run in the Bubblewrap sandbox by default.
+Add a read-only file or directory and a writable directory at initial deploy:
+
+```bash
+yeet run api ./api --sandbox-ro=/etc/api --sandbox-rw=/srv/api-cache:/cache
+```
+
+Existing native services retain their reported `legacy`, `on`, or `off` state.
+Choose a state one service at a time:
+
+```bash
+yeet service set api --sandbox=on
+yeet service set api --sandbox=off
+```
+
+For existing services, each mentioned exposure class is a complete guarded
+list. Preserve every entry you want to keep, or use that class's `reset` token
+to replace it:
+
+```bash
+yeet service set api --sandbox-ro=/etc/api --sandbox-ro=/etc/ssl
+yeet service set api --sandbox-ro=reset --sandbox-ro=/etc/api
+```
+
+An exposure-only edit changes an `off` service to `on`. Repeat
+`--sandbox=off` when the new exposure should stay dormant:
+
+```bash
+yeet service set api --sandbox=off --sandbox-ro=/etc/api
+```
+
+Apply sandbox changes separately from identity, network, storage, schedule,
+publication, and snapshot changes. See
+[Native Sandboxing](/docs/concepts/native-sandboxing) for the filesystem view,
+namespace boundary, and Bubblewrap installation triggers.
+
 ## Run a cron job
 
 ```bash

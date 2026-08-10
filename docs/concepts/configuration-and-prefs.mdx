@@ -97,6 +97,9 @@ args = ["--net=svc,ts"]
 name = "sensor-collector"
 host = "trinity-catch"
 payload = "./bin/sensor-collector"
+sandbox = "on"
+sandbox_ro = ["/etc/sensor-collector"]
+sandbox_rw = ["/srv/sensor-cache:/cache"]
 args = ["--listen", ":9100"]
 
 [[services]]
@@ -115,10 +118,22 @@ Notes:
   five-field cron expression. Do not set `type` for scheduled services.
 - `args` keeps run control flags before `--` and binary or script arguments
   after `--`.
+- `sandbox` records the authoritative native state as `legacy`, `on`, or
+  `off`. Commands select only `on` or `off`; `legacy` records an older active
+  generation that has not received an explicit choice.
+- `sandbox_ro` stores read-only files or directories. `sandbox_rw` stores
+  writable directories. Each entry is `SOURCE` or `SOURCE:DEST`, and the
+  normalized lists never contain the `reset` control token.
 - `hosts` controls host-scoped commands like `yeet status` with no args.
 
 If the live host state changes from another checkout, use `yeet service sync`
 instead of editing around the drift by hand.
+
+Fresh successful native runs save the resolved explicit sandbox policy. A
+matching `service set` writes Catch's authoritative result only after the
+remote mutation succeeds. See
+[Native Sandboxing](/docs/concepts/native-sandboxing) before editing these
+fields by hand.
 
 ## Environment variables
 

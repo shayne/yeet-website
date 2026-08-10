@@ -84,6 +84,12 @@ Common flags:
 - `--zfs`: treat `--service-root` as a ZFS dataset.
 - `--run-as=<user>[:<group>]`: run a native binary or script as an existing
   host account. Native services default to `yeet-svc`.
+- `--sandbox=on|off`: select the native Bubblewrap sandbox or the explicit
+  direct-execution escape hatch. Fresh native services default to `on`.
+- `--sandbox-ro=SOURCE[:DEST]`: expose a read-only file or directory. Repeat
+  the flag for multiple paths.
+- `--sandbox-rw=SOURCE[:DEST]`: expose a writable directory. Repeat the flag
+  for multiple paths.
 - `--cron="M H DOM MON DOW"`: schedule a native binary or script. Omitting the
   flag on later runs preserves an installed schedule; a non-empty value
   replaces it.
@@ -97,12 +103,20 @@ service, a network difference stops before redeployment and directs you to
 `yeet service set <svc> ...`. Payload and unrelated configuration updates still
 use `yeet run` when the requested network matches Catch's desired state.
 
+An existing native `run` also preserves Catch's active sandbox state and
+exposures. A sandbox difference stops before redeployment and prints the
+equivalent `yeet service set` command. Existing native services without
+sandbox metadata report `legacy`; choose `on` or `off` explicitly through
+`service set`.
+
 Related guides:
 
 - [Payloads](/docs/payloads)
 - [Workflows](/docs/operations/workflows)
 - [Networking](/docs/concepts/networking) for reachability, DNS, and internet
   egress paths
+- [Native Sandboxing](/docs/concepts/native-sandboxing) for filesystem
+  exposures, state migration, and the security boundary
 - [ZFS](/docs/concepts/zfs)
 
 `iso` supports VMs, native binaries and scripts, timer-backed jobs, and
@@ -169,6 +183,9 @@ yeet info --host=<catch-host>
 yeet info <svc>
 yeet info <svc> --format=json
 ```
+
+For native services, `info` reports authoritative sandbox state as `legacy`,
+`on`, or `off` plus every normalized read-only and writable exposure.
 
 ### `logs`
 
@@ -323,6 +340,10 @@ yeet service set <svc> --service-root=tank/apps/<svc> --zfs --copy
 yeet service set <svc> --run-as=yeet-svc
 yeet service set <svc> --run-as=app:app
 yeet service set <svc> --run-as=root
+yeet service set <svc> --sandbox=on
+yeet service set <svc> --sandbox=off
+yeet service set <svc> --sandbox-ro=/etc/app --sandbox-ro=/etc/ssl
+yeet service set <svc> --sandbox-ro=reset --sandbox-ro=/etc/app
 yeet service set <svc> --net=iso
 yeet service set <svc> --net=ts --ts-tags=tag:app
 yeet service set <svc> --net=host
@@ -337,6 +358,33 @@ a scheduled service, cannot clear a schedule or combine with another service
 mutation, and preserves the server-side payload and other settings. After
 Catch applies the change, yeet updates a matching `yeet.toml`; run
 `yeet service sync <svc>` if the local config is absent or cannot be saved.
+
+Sandbox flags apply only to existing native binaries, shebang scripts, and
+scheduled jobs. `--sandbox` accepts `on` or `off`. The `legacy` state shown by
+`yeet info` cannot be selected; it remains until the service receives an
+explicit choice.
+
+`--sandbox-ro` accepts a read-only file or directory. `--sandbox-rw` accepts a
+writable directory. Both accept `SOURCE` or `SOURCE:DEST` and can be repeated.
+Each access class mentioned by the command is the complete desired list for
+that class. Catch refuses an implicit removal. Include every entry to preserve
+or use `--sandbox-ro=reset` or `--sandbox-rw=reset` to replace that list.
+Unmentioned classes remain unchanged.
+
+An exposure-only mutation of an `off` service changes the resulting state to
+`on`, which activates the sandbox and may install Bubblewrap. Repeat
+`--sandbox=off` in the same command to edit dormant configuration while
+retaining direct execution:
+
+```bash
+yeet service set api --sandbox=off --sandbox-ro=/etc/api
+```
+
+Sandbox settings can combine with each other but not with cron, identity,
+network, service-root, publication, or snapshot changes in the same
+`service set` command. `--sandbox=off` is independent of `--run-as=root` and
+network mode; apply those separate choices in separate operations. See
+[Native Sandboxing](/docs/concepts/native-sandboxing).
 
 Network flags on `service set` apply only to existing non-VM services. The
 change restarts the service immediately. `--net` replaces the complete mode
@@ -398,7 +446,8 @@ yeet service sync <svc> --config ./yeet.toml
 
 Use `service sync` when Catch applied a remote `service set` mutation but yeet
 could not update the local project file. Catch remains authoritative in that
-partial-success case.
+partial-success case. Native sync also writes the authoritative `sandbox`,
+`sandbox_ro`, and `sandbox_rw` fields.
 
 ## Docker
 

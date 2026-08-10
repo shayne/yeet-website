@@ -17,8 +17,8 @@ such as `yeet status` from that directory. Yeet can offer to save it as a
 registered workspace, so future commands from other directories can find it.
 
 A consistent workspace lets yeet reuse saved payload paths, hosts, network
-flags, service roots, native run-as identities, snapshots, cron schedules, and
-payload args.
+flags, service roots, native run-as identities, native sandbox policies,
+snapshots, cron schedules, and payload args.
 
 Use one workspace so deployment state stays with the files it describes,
 instead of spreading across shell history and unrelated directories.
@@ -99,6 +99,20 @@ an operator-created account, select it explicitly and yeet saves that choice:
 yeet run sensor-collector ./bin/sensor-collector --run-as=sensors:sensors
 ```
 
+Fresh native services also use the Bubblewrap sandbox by default. Save any
+additional read-only files or directories and writable directories at the
+initial run:
+
+```bash
+yeet run sensor-collector ./bin/sensor-collector \
+  --sandbox-ro=/etc/sensor-collector \
+  --sandbox-rw=/srv/sensor-cache:/cache
+```
+
+Yeet writes the resolved `sandbox`, `sandbox_ro`, and `sandbox_rw` values only
+after Catch succeeds. Existing native services keep their current state until
+you make an explicit one-service choice with `yeet service set`.
+
 Put scheduled jobs beside the rest of the homelab payloads:
 
 ```bash
@@ -118,10 +132,10 @@ yeet run mqtt-bridge
 ```
 
 Yeet reads `yeet.toml`, finds the saved payload path, and reuses saved options
-such as network mode, env file, service root, native run-as identity, snapshot
-settings, and payload args. If you are outside the workspace and yeet already
-knows which workspace owns that catch host, it falls back to the registered
-workspace.
+such as network mode, env file, service root, native run-as identity, native
+sandbox policy, snapshot settings, and payload args. If you are outside the
+workspace and yeet already knows which workspace owns that catch host, it falls
+back to the registered workspace.
 
 ## Keep paths relative
 
@@ -157,3 +171,5 @@ a letter and end with a letter or number.
   commands.
 - [Configuration](/docs/concepts/configuration-and-prefs) explains
   `yeet.toml`, client config, and host defaults.
+- [Native Sandboxing](/docs/concepts/native-sandboxing) explains sandbox state,
+  exposures, and safe replacement.

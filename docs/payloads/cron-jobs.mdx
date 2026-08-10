@@ -34,6 +34,28 @@ Jobs run as the shared `yeet-svc` account by default. `--run-as` selects a
 different existing host account, and yeet saves that identity for later runs.
 Use `yeet service set <svc> --run-as=yeet-svc` to change the identity.
 
+Fresh scheduled jobs also use the native Bubblewrap sandbox by default. Add
+read-only files or directories and writable directories with the same controls
+as ordinary native services:
+
+```bash
+yeet run backup ./backup --cron="0 3 * * *" \
+  --sandbox-ro=/etc/backup \
+  --sandbox-rw=/srv/backup-cache:/cache
+```
+
+Existing scheduled jobs keep their reported `legacy`, `on`, or `off` state
+until you choose explicitly:
+
+```bash
+yeet service set backup --sandbox=on
+yeet service set backup --sandbox=off
+```
+
+Changing sandbox policy replaces and verifies both the service and timer units.
+Catch does not invoke the job payload as a migration test. The timer retains
+its expected enabled or waiting intent after the change.
+
 Change the network for an existing job through `service set`:
 
 ```bash
@@ -90,7 +112,8 @@ yeet copy ./config.yml <svc>:config/config.yml
 ```
 
 Use [Binaries & Scripts](/docs/payloads/binaries) for payload preparation
-details.
+details and [Native Sandboxing](/docs/concepts/native-sandboxing) for exposure
+replacement, dependency triggers, and the security boundary.
 
 ## ZFS service roots
 
