@@ -7,26 +7,32 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ### v0.11.1
 
-- Existing native binaries, scripts, and scheduled jobs can now move from
-  `legacy` mode into a Bubblewrap sandbox without redeploying their payload or
-  environment, including services whose older units use historical runtime
-  paths.
-- ISO-networked native services now use the stable Catch runner for their
-  network gate, so later Catch upgrades cannot strand the helper on a pruned
-  generation-specific binary.
+- New native binaries, scripts, and scheduled jobs now run inside a Bubblewrap
+  sandbox by default. Each service gets writable service data, private temporary
+  directories, and only the operating-system, payload, and explicitly exposed
+  paths it needs.
+- Existing native services stay unchanged until you enable sandboxing with
+  `yeet service set <svc> --sandbox=on`. Use repeatable `--sandbox-ro=...` and
+  `--sandbox-rw=...` flags to expose additional read-only or writable paths.
+- This patch lets older and ISO-networked native services opt in without
+  redeploying their payload or environment, and keeps their network helpers
+  working across Catch upgrades.
 
 ## August 10, 2026
 
 ### v0.11.0
 
-- Compatible Ubuntu hosts can now activate native Bubblewrap sandboxes while
-  AppArmor restricts unprivileged user namespaces. Catch installs and verifies
-  a narrow Yeet-owned profile without disabling AppArmor, changing global
-  user-namespace settings, or replacing conflicting operator content.
-- Sandboxed native services now complete managed-identity activation with
-  explicit service roots, and troubleshooting distinguishes host-policy
-  failures from older private service-root paths that need a traversable custom
-  root or a separately planned storage migration.
+- Yeet now runs new native binaries, scripts, and scheduled jobs inside a
+  Bubblewrap sandbox by default. Each service gets writable service data,
+  private temporary directories, and only the operating-system, payload, and
+  explicitly exposed paths it needs.
+- Existing native services stay unchanged until you enable sandboxing with
+  `yeet service set <svc> --sandbox=on`. Use repeatable `--sandbox-ro=...` and
+  `--sandbox-rw=...` flags to expose additional read-only or writable paths, or
+  choose `--sandbox=off` to keep a service unsandboxed.
+- `yeet init` and first-time sandbox activation install and verify Bubblewrap
+  automatically on supported Ubuntu hosts while keeping AppArmor protections
+  enabled.
 
 ### v0.10.17
 
