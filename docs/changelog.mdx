@@ -5,6 +5,17 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ## August 10, 2026
 
+### v0.11.0
+
+- Compatible Ubuntu hosts can now activate native Bubblewrap sandboxes while
+  AppArmor restricts unprivileged user namespaces. Catch installs and verifies
+  a narrow Yeet-owned profile without disabling AppArmor, changing global
+  user-namespace settings, or replacing conflicting operator content.
+- Sandboxed native services now complete managed-identity activation with
+  explicit service roots, and troubleshooting distinguishes host-policy
+  failures from older private service-root paths that need a traversable custom
+  root or a separately planned storage migration.
+
 ### v0.10.17
 
 - Fresh native binaries, scripts, and scheduled jobs now run in a Bubblewrap
