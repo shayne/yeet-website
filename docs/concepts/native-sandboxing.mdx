@@ -179,8 +179,15 @@ state flag, an exposure-only edit results in `on`, so Catch installs and probes
 Bubblewrap before activation.
 
 Catch verifies the binary's ownership and permissions and runs a functional
-namespace probe. It does not weaken AppArmor or host-wide user-namespace policy
-when that probe fails. See
+namespace probe as a fixed non-root identity. On compatible Ubuntu hosts where
+AppArmor restricts unprivileged user namespaces, Catch installs and loads the
+exact Yeet-owned profile at `/etc/apparmor.d/yeet-bwrap`, then repeats the
+functional and security probes. Debian and hosts without that restriction use
+only the Bubblewrap package.
+
+Catch never disables AppArmor or changes a host-wide user-namespace sysctl. If
+the managed path contains different content, Catch preserves it and stops with
+recovery guidance. See
 [Troubleshooting](/docs/operations/troubleshooting#native-sandbox-activation-fails)
 for package and policy checks.
 

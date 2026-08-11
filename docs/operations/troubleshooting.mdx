@@ -278,10 +278,23 @@ sudo journalctl -k --grep='apparmor\|DENIED\|userns'
 
 Some kernels do not expose `kernel.unprivileged_userns_clone`; use the Catch
 error and kernel security logs as the authoritative evidence on those hosts.
-If the distribution package is absent or too old, install an
-operator-managed compatible Bubblewrap that provides a trusted
-`/usr/bin/bwrap`. Yeet does not supply a sysctl workaround, disable AppArmor,
-or relax host-wide user-namespace restrictions.
+If a compatible Ubuntu host enforces restricted unprivileged user namespaces,
+Catch manages the exact profile `/etc/apparmor.d/yeet-bwrap`. Inspect that path
+when Catch reports a conflict. Catch preserves different operator-owned
+content rather than replacing it.
+
+If the distribution package is absent or too old, install an operator-managed
+compatible Bubblewrap that provides a trusted `/usr/bin/bwrap`. Yeet never
+disables AppArmor, changes a global user-namespace sysctl, or makes Bubblewrap
+setuid.
+
+If the workload probe instead reports `Permission denied` for the service
+payload or data path, make sure the service identity can traverse every parent
+directory. Fresh Yeet-managed service roots already provide that traversal. On
+an older host whose services live below a private home directory, use a
+traversable host-controlled `--service-root` for a new service or plan a
+separate host-storage migration. Do not make the private home directory
+world-traversable just to satisfy the probe.
 
 Path validation errors name the rejected source or destination. A read-only
 exposure can be a regular file or directory. A writable exposure must be a

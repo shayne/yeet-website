@@ -192,8 +192,13 @@ activation. See [Native Sandboxing](/docs/concepts/native-sandboxing) for the
 exact dormant-edit command.
 
 Catch verifies ownership and permissions on the binary and runs a functional
-namespace probe before activating a sandboxed service. It never disables
-AppArmor or relaxes host-wide user-namespace policy to make the probe pass.
+namespace probe as a fixed non-root identity. On compatible Ubuntu hosts where
+AppArmor restricts unprivileged user namespaces, Catch installs and loads the
+exact Yeet-owned profile at `/etc/apparmor.d/yeet-bwrap`, then repeats the
+probe. Debian and hosts without that restriction need only the Bubblewrap
+package. A different file at the managed path is preserved and reported.
+
+Catch never disables AppArmor or relaxes host-wide user-namespace policy.
 See
 [Native sandbox activation fails](/docs/operations/troubleshooting#native-sandbox-activation-fails)
 for package and policy checks.
