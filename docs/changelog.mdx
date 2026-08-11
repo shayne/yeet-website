@@ -3,6 +3,18 @@ title: Changelog
 description: Release notes for users deciding whether to install or upgrade.
 ---
 
+## August 11, 2026
+
+### v0.11.1
+
+- Existing native binaries, scripts, and scheduled jobs can now move from
+  `legacy` mode into a Bubblewrap sandbox without redeploying their payload or
+  environment, including services whose older units use historical runtime
+  paths.
+- ISO-networked native services now use the stable Catch runner for their
+  network gate, so later Catch upgrades cannot strand the helper on a pruned
+  generation-specific binary.
+
 ## August 10, 2026
 
 ### v0.11.0
