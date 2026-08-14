@@ -3,6 +3,21 @@ title: Changelog
 description: Release notes for users deciding whether to install or upgrade.
 ---
 
+## August 13, 2026
+
+### v0.11.2
+
+- New native binaries, scripts, and scheduled jobs run inside a Bubblewrap
+  sandbox by default. Each service gets writable service data, private temporary
+  directories, and only the operating-system, payload, and explicitly exposed
+  paths it needs.
+- Existing native services stay unchanged until you enable sandboxing with
+  `yeet service set <svc> --sandbox=on`. Use repeatable `--sandbox-ro=...` and
+  `--sandbox-rw=...` flags to expose additional read-only or writable paths.
+- Supersedes v0.11.1 for Tailscale-networked services. Redeploys and rollbacks
+  now keep the sidecar socket in its runtime directory, so service activation
+  completes instead of timing out and stopping a healthy Tailscale sidecar.
+
 ## August 11, 2026
 
 ### v0.11.1
