@@ -5,6 +5,15 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ## August 13, 2026
 
+### v0.11.3
+
+- Supersedes v0.11.2. Docker Compose redeploys now stop managed auxiliary
+  units before replacing their binaries, so Tailscale sidecars restart with
+  the newly installed executable instead of failing activation verification.
+- Native isolated services now activate from the exact post-prune service
+  record and accept only their own workload gate's ready transition, so normal
+  redeploys and recovery no longer conflict with generation cleanup.
+
 ### v0.11.2
 
 - New native binaries, scripts, and scheduled jobs run inside a Bubblewrap
