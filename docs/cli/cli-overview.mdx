@@ -106,3 +106,7 @@ Interactive commands such as `yeet edit`, `yeet env edit`, and some prompts
 need a TTY. Run them from an interactive shell. For scripts, prefer explicit
 flags such as `--yes`, `--progress=plain`, or `--progress=quiet` where the
 command supports them.
+
+Yeet styles prompts and progress only when writing to an interactive terminal.
+`NO_COLOR`, redirected output, `--progress=plain`, `--progress=quiet`, and
+structured JSON formats remain unstyled for scripts and logs.
