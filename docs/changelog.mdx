@@ -5,6 +5,16 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ## August 22, 2026
 
+### v0.11.7
+
+- `yeet stop` now asks running VMs to power off cleanly before stopping their
+  host units, then falls back to the normal forced stop with a warning when
+  guest shutdown is unavailable. Intentional stops no longer leave VM units in
+  a failed state.
+- `yeet vm set <service> --net lan` now preserves the VM's existing LAN parent,
+  VLAN, and MAC address unless you explicitly override them, avoiding
+  unintended network identity changes.
+
 ### v0.11.6
 
 - Systemd-based VMs, including NixOS, now skip unanswered serial-console size
