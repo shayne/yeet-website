@@ -3,6 +3,18 @@ title: Changelog
 description: Release notes for users deciding whether to install or upgrade.
 ---
 
+## August 22, 2026
+
+### v0.11.5
+
+- Ubuntu 26.04 VMs now become SSH-ready substantially sooner by starting the
+  guest's existing OpenSSH daemon during early boot and reacting to guest
+  readiness events without a fixed polling delay.
+- The early listener hands off cleanly to the normal systemd-supervised
+  OpenSSH service, preserving the guest's SSH keys, accounts, PAM, and package
+  behavior. Running VMs are left alone and adopt the faster path on their next
+  normal image update or redeploy.
+
 ## August 19, 2026
 
 ### v0.11.4
