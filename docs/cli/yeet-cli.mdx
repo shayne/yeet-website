@@ -327,6 +327,19 @@ yeet service rollback <svc>
 VM services do not support generation rollback. Use `yeet snapshots restore`
 for VM disk recovery.
 
+### `service readmit`
+
+Revalidate and readmit a quarantined native isolated service:
+
+```bash
+yeet service readmit <svc>
+```
+
+`start` and `restart` do not bypass quarantine. After correcting the diagnostic
+shown by `yeet info <svc>`, use `service readmit` to verify the isolation
+boundary, install and restart the current generation, and confirm the runtime
+is active before Catch clears quarantine.
+
 ### `service set`
 
 Change settings that require an explicit service update:

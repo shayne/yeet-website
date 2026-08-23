@@ -140,6 +140,17 @@ Catch stops the service or quarantines its network state instead of leaving a
 partially active network. Run `yeet info <svc>` again for the lifecycle state
 and error; a separate manual restart is not the network-activation step.
 
+For a quarantined native `iso` service, `yeet start <svc>` and
+`yeet restart <svc>` fail before changing systemd state and preserve the
+diagnostic. Correct the reported boundary or runtime problem, then run:
+
+```bash
+yeet service readmit <svc>
+```
+
+Catch revalidates the isolation boundary and active runtime before clearing
+quarantine. `yeet stop <svc>` does not clear quarantine.
+
 See [Networking](/docs/concepts/networking) before changing modes on a shared
 host.
 

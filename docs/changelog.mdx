@@ -3,6 +3,19 @@ title: Changelog
 description: Release notes for users deciding whether to install or upgrade.
 ---
 
+## August 23, 2026
+
+### v0.11.9
+
+- Catch upgrades now keep the daemon, DNS helpers, and isolated network gates
+  on the stable Catch runtime path. Existing unit definitions are repaired on
+  startup, so removing an installer or old generation cannot break a later
+  Catch restart or interrupt isolated DNS.
+- Starting or restarting a quarantined native isolated service now leaves it
+  stopped and preserves its diagnostic. After correcting the reported
+  isolation failure, run `yeet service readmit <svc>` to revalidate the
+  boundary and runtime before returning the service to ready.
+
 ## August 22, 2026
 
 ### v0.11.8
