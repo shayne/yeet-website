@@ -5,6 +5,16 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ## August 22, 2026
 
+### v0.11.8
+
+- New VMs on ZFS-backed hosts now clone an existing cached image base directly
+  instead of first decompressing and syncing an unused per-service copy. In
+  testing, repeated Ubuntu VM provisioning fell from about 14 seconds to under
+  5 seconds.
+- First-time image setup and raw-disk hosts still prepare and verify the guest
+  filesystem when it is actually needed; guest contents and boot behavior are
+  unchanged.
+
 ### v0.11.7
 
 - `yeet stop` now asks running VMs to power off cleanly before stopping their
