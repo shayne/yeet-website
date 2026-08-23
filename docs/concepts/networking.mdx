@@ -105,8 +105,8 @@ Python, and TypeScript payloads. Use `--net` only when the workload also needs
 private service networking, LAN presence, or a Tailscale identity. More network
 modes make the service reachable in more ways, which is not automatically a win.
 
-ISO workloads cannot publish ports. Catch already has a routed management path
-to every ISO endpoint, while public or LAN ingress is intentionally absent.
+iso workloads cannot publish ports. Catch already has a routed management path
+to every iso endpoint, while public or LAN ingress is intentionally absent.
 
 Change ports later with `service set`. The port list is complete, so include
 every mapping you want to keep:
@@ -175,7 +175,7 @@ yeet run <vm> vm://ubuntu/26.04 --net=iso
 Every VM, native endpoint, and container component gets a stable RFC1918 IPv4
 address. Catch can initiate connections to those addresses on any protocol or
 port, including the Catch-proxied path used by `yeet ssh <iso-vm>`. Return
-traffic is allowed. A workload cannot initiate a new flow to Catch, another ISO
+traffic is allowed. A workload cannot initiate a new flow to Catch, another iso
 project, `svc`, LAN, CGNAT/Tailscale, link-local or metadata addresses, or other
 non-public IPv4 space. Public IPv4 traffic is NATed through Catch.
 
@@ -183,24 +183,24 @@ Components in one admitted Compose project may communicate with each other;
 the project is the isolation unit. Other Yeet projects cannot reach them.
 Public and LAN clients cannot use Catch's route as an ingress path.
 
-ISO provides a dedicated public-only DNS view. It refuses Yeet-local records,
+iso provides a dedicated public-only DNS view. It refuses Yeet-local records,
 private and IPv6 address answers, direct public DNS on port 53, and DNS over TLS
-on port 853. DNS over HTTPS looks like permitted HTTPS traffic, so ISO does not
-claim to block it. IPv6 is disabled for ISO attachments.
+on port 853. DNS over HTTPS looks like permitted HTTPS traffic, so iso does not
+claim to block it. IPv6 is disabled for iso attachments.
 
-ISO supports VMs, native binaries and scripts, timer-backed jobs, images,
+iso supports VMs, native binaries and scripts, timer-backed jobs, images,
 client-built Dockerfiles, Python, TypeScript, and an admitted subset of
-Compose. A native workload's generated systemd service joins the ISO namespace;
+Compose. A native workload's generated systemd service joins the iso namespace;
 a timer remains the scheduling unit while its invoked service joins the
 namespace. Network selection does not change `User=`, `Group=`, capabilities,
 or filesystem policy. Root and non-root native services use the same network
-path. ISO controls ordinary workload traffic; it is not containment against a
+path. iso controls ordinary workload traffic; it is not containment against a
 host-root process.
 
 Compose is trusted deployment code: Catch resolves it through Docker and
 rejects host networking, published ports, privilege or host-namespace changes,
 unsafe mounts and sockets, custom DNS, extra networks, Catch-side builds,
-replicas, and unknown service fields before starting containers. One ISO
+replicas, and unknown service fields before starting containers. One iso
 Compose project supports up to 29 named components.
 
 `iso` cannot combine with `svc` or `lan`. Supported container-backed services
@@ -209,8 +209,8 @@ exception to the internet-only rule. Native binaries, scripts, and timer-backed
 jobs cannot combine `iso` with `ts`. VMs also use `iso` alone and can install
 Tailscale inside the guest.
 
-Catch selects and persists a non-overlapping RFC1918 `/16` before the first ISO
-allocation, preferring `172.30.0.0/16`. Set a different pool before any ISO
+Catch selects and persists a non-overlapping RFC1918 `/16` before the first iso
+allocation, preferring `172.30.0.0/16`. Set a different pool before any iso
 allocation or cleanup tombstone exists:
 
 ```bash
@@ -218,7 +218,7 @@ yeet host set --iso-pool=172.28.0.0/16
 ```
 
 The value must be an RFC1918 IPv4 `/16` with no live or persisted overlap. Yeet
-does not renumber existing ISO workloads automatically.
+does not renumber existing iso workloads automatically.
 
 ## LAN (`lan`)
 
@@ -313,7 +313,7 @@ and `yeet tailscale` commands.
 | `lan` | The workload should be a LAN or VLAN device. | The host network cannot provide DHCP, routing, or macvlan support. |
 | `ts` | The workload is deliberately tailnet-only, or an exit node handles internet egress. | The workload needs normal internet, yeet DNS, or private service traffic. |
 | `iso` | A workload needs public IPv4 egress and Catch-only ingress. | The workload must initiate traffic to Catch, LAN, `svc`, another project, or other private space. |
-| `iso,ts` | A supported container-backed service needs isolation plus an explicit tailnet identity. | The workload is a VM, native binary or script, timer-backed job, or plain ISO covers the access path. |
+| `iso,ts` | A supported container-backed service needs isolation plus an explicit tailnet identity. | The workload is a VM, native binary or script, timer-backed job, or plain iso covers the access path. |
 | `svc,ts` | The workload needs private yeet networking plus a tailnet identity. | The workload must appear as a LAN device. |
 | `lan,ts` | The LAN handles ordinary egress and the service also needs a tailnet identity. | The workload needs yeet DNS or private service traffic. |
 | `svc,lan` | A VM or service needs LAN presence plus yeet private networking. | The workload does not need the LAN. |
@@ -379,7 +379,7 @@ Mounts are host-level resources, not per-service network modes.
 
 - [Tailscale](/docs/concepts/tailscale) covers catch host access,
   per-service Tailscale identities, tags, and exit nodes.
-- [DNS](/docs/concepts/dns) covers names inside `svc` and ISO's public-only
+- [DNS](/docs/concepts/dns) covers names inside `svc` and iso's public-only
   resolver.
 - [VMs](/docs/payloads/vms) covers VM networking and SSH behavior.
 - [Troubleshooting](/docs/operations/troubleshooting) covers common network

@@ -142,14 +142,15 @@ and error; a separate manual restart is not the network-activation step.
 
 For a quarantined native `iso` service, `yeet start <svc>` and
 `yeet restart <svc>` fail before changing systemd state and preserve the
-diagnostic. Correct the reported boundary or runtime problem, then run:
+diagnostic. Correct the reported boundary or runtime problem, then inspect the
+service before recovering the quarantined record manually on the Catch host:
 
 ```bash
-yeet service readmit <svc>
+yeet info <svc>
 ```
 
-Catch revalidates the isolation boundary and active runtime before clearing
-quarantine. `yeet stop <svc>` does not clear quarantine.
+`yeet stop <svc>` does not clear quarantine. Verify the isolation boundary and
+active runtime before clearing the record by hand.
 
 See [Networking](/docs/concepts/networking) before changing modes on a shared
 host.
@@ -174,11 +175,11 @@ Use the mode to choose the next check:
   `yeet service set <svc> --ts-exit=<exit-node>`.
 - `iso` allows globally reachable public IPv4 only. Private, link-local,
   metadata, CGNAT/Tailscale, special-purpose, and IPv6 destinations are expected
-  to fail. Confirm Catch itself has internet access and the ISO state is ready.
+  to fail. Confirm Catch itself has internet access and the iso state is ready.
 
-## An ISO deployment is rejected
+## An iso deployment is rejected
 
-ISO fails closed before start when the payload or resolved Compose model could
+iso fails closed before start when the payload or resolved Compose model could
 bypass the boundary. Read the field path in the error. Common causes include:
 
 - Published ports or Compose `ports`.
@@ -192,13 +193,13 @@ bypass the boundary. Read the field path in the error. Common causes include:
 
 Do not remove the field merely to silence validation unless the resulting
 deployment still matches what the application needs. The Compose file is
-trusted deployment code; ISO contains the admitted containers, not a definition
+trusted deployment code; iso contains the admitted containers, not a definition
 that already asked the host runtime to escape containment.
 
-## An ISO workload cannot reach a private address
+## An iso workload cannot reach a private address
 
-That is the expected policy. ISO allows workload-initiated public IPv4 egress,
-not arbitrary routing through Catch. It rejects Catch, LAN, `svc`, other ISO
+That is the expected policy. iso allows workload-initiated public IPv4 egress,
+not arbitrary routing through Catch. It rejects Catch, LAN, `svc`, other iso
 projects, RFC1918, CGNAT/Tailscale, link-local, metadata, multicast, reserved,
 and IPv6 destinations. Components in the same admitted Compose project are the
 one private communication exception.
@@ -206,7 +207,7 @@ one private communication exception.
 Use another network mode when the workload legitimately needs private access.
 For a supported container-backed service that needs a tailnet identity, use
 `iso,ts`. Native and timer workloads cannot use that combination. For a VM,
-install Tailscale inside the guest. Do not add `svc` or `lan` to ISO; Yeet
+install Tailscale inside the guest. Do not add `svc` or `lan` to iso; Yeet
 rejects those combinations.
 
 ## Yeet DNS names do not resolve

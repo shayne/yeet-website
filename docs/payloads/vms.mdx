@@ -153,7 +153,7 @@ yeet ssh --force-proxy <vm>
 ```
 
 Use `iso` when the guest is untrusted and needs the public IPv4 internet but
-must not initiate traffic to Catch, LAN, `svc`, another ISO project, or other
+must not initiate traffic to Catch, LAN, `svc`, another iso project, or other
 private address space:
 
 ```bash
@@ -163,12 +163,12 @@ yeet run <vm> vm://ubuntu/26.04 --net=iso
 The VM gets a stable RFC1918 address and public-only DNS. Catch can initiate
 connections to the guest on any port, and `yeet ssh <vm>` automatically uses
 Catch's existing proxy path because the workstation normally has no direct
-route to the ISO address. Public and LAN clients do not gain an ingress path.
-IPv6 is disabled on the ISO attachment.
+route to the iso address. Public and LAN clients do not gain an ingress path.
+IPv6 is disabled on the iso attachment.
 
 VM `iso` cannot combine with `svc`, `lan`, or Yeet-managed `ts`.
 
-VM network modes do not include `ts`. If an ISO guest needs its own Tailscale
+VM network modes do not include `ts`. If an iso guest needs its own Tailscale
 identity, install and configure Tailscale inside the guest. At that point the
 guest is the actor joining the tailnet, which is the right boundary.
 

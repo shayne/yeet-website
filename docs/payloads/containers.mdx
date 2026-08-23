@@ -156,7 +156,7 @@ egress but must not initiate traffic to Catch, LAN, `svc`, Tailscale, or another
 isolated project. Catch can still connect to every component on any port. Use
 `iso,ts` only when the service also needs an explicit Tailscale identity.
 
-ISO works with images, client-built Dockerfiles, Python, TypeScript, and an
+iso works with images, client-built Dockerfiles, Python, TypeScript, and an
 admitted Compose subset. It rejects published ports, host networking, elevated
 privileges and host namespaces, unsafe mounts or runtime sockets, custom DNS,
 extra networks, Catch-side Compose builds, replicas, and unknown service fields.

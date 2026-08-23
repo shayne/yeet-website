@@ -115,6 +115,8 @@ Use headings as a map, not as decoration.
 
 Use plain, direct language. Be confident, but not chatty.
 
+Write `iso` lowercase when referring to the isolated network mode.
+
 Prefer:
 
 - "Run this on your workstation."

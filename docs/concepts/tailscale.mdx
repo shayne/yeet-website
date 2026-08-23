@@ -164,9 +164,9 @@ egress and its own tailnet identity:
 yeet run <svc> ./compose.yml --net=iso,ts --ts-tags=tag:app
 ```
 
-Ordinary traffic still uses ISO's Catch NAT, while tailnet routes and MagicDNS
+Ordinary traffic still uses iso's Catch NAT, while tailnet routes and MagicDNS
 use the service-owned Tailscale interface. Selecting `ts` is an explicit
-exception to ISO's otherwise public-internet-only policy. VMs do not support a
+exception to iso's otherwise public-internet-only policy. VMs do not support a
 Yeet-managed `iso,ts` mode; install Tailscale inside the guest instead.
 
 Make sure the OAuth client saved during catch setup can assign every tag you

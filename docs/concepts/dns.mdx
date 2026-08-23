@@ -11,7 +11,7 @@ DNS here is intentionally narrow. It is not a tailnet-wide naming system and it
 is not a replacement for your LAN resolver. It resolves names for workloads
 that joined the yeet service network.
 
-ISO networking uses a separate public-only resolver. It deliberately does not
+iso networking uses a separate public-only resolver. It deliberately does not
 publish Yeet service names.
 
 ## What resolves
@@ -36,7 +36,7 @@ instead of plain `ts` when a Tailscale-exposed service also needs yeet DNS,
 private service traffic, or catch-host internet egress. Plain `ts` is a
 different network path.
 
-## ISO public-only DNS
+## iso public-only DNS
 
 An `iso` workload can resolve ordinary public names without gaining Yeet or
 private-network discovery. Its dedicated resolver:
@@ -44,7 +44,7 @@ private-network discovery. Its dedicated resolver:
 - Does not add a `yeet.internal` search domain.
 - Refuses Yeet-local forward and reverse zones.
 - Refuses or removes private, special-purpose, and IPv6 address answers.
-- Accepts TCP and UDP DNS only from the assigned ISO source prefixes.
+- Accepts TCP and UDP DNS only from the assigned iso source prefixes.
 
 VMs use the Catch side of their private point-to-point link as the resolver.
 Container components use their project router, which forwards to the same

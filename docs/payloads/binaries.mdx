@@ -7,9 +7,9 @@ Binary and script payloads become systemd services on the catch host. Use this
 path for a single long-running process that does not need a container.
 
 Native binaries, scripts, and timer-backed jobs can use `--net=iso`. Catch runs
-the service inside an ISO network namespace while leaving its user, group,
+the service inside an iso network namespace while leaving its user, group,
 capabilities, and filesystem policy unchanged. Root and non-root workloads use
-the same network path. ISO controls ordinary workload traffic; it does not
+the same network path. iso controls ordinary workload traffic; it does not
 claim to contain a hostile host-root process.
 
 This is the direct path. Build or write the thing, hand it to yeet, and catch
