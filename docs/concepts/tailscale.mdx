@@ -188,6 +188,18 @@ node. Omitted values stay unchanged. Whenever the resulting modes include
 inherited. Yeet uses `--ts-auth-key` only for the current enrollment and never
 shows it in info output or saves it to `yeet.toml`.
 
+To add a Tailscale identity to an existing LAN service while keeping LAN
+access, include both modes:
+
+```bash
+yeet service set <svc> --net=lan,ts --ts-tags=tag:app
+```
+
+This also applies to services on custom paths or ZFS datasets. The service
+root and payload stay in place. Catch checks the replacement Tailscale
+configuration before stopping the current service; if that check fails, it keeps
+running with its previous network settings.
+
 Options:
 
 - `--ts-tags=<tag>` sets service tags. Repeat it to replace the list with

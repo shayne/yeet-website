@@ -5,6 +5,14 @@ description: Release notes for users deciding whether to install or upgrade.
 
 ## September 7, 2026
 
+### v0.11.12
+
+- Existing native and Docker Compose services can add or update `svc,ts` and
+  `lan,ts` networking without false unmanaged-artifact errors, including custom
+  paths and ZFS service roots. Upgrade Catch, then retry
+  `yeet service set <svc> --net=lan,ts --ts-tags=tag:app` to keep LAN access while
+  adding a Tailscale identity.
+
 ### v0.11.11
 
 - First deployments can choose their initial network settings after uploading
