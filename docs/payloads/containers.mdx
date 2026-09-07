@@ -24,7 +24,12 @@ yeet run <svc> ./compose.yml
 yeet run <svc> ./compose.yml --net=lan
 ```
 
-Compose files should define their initial port mappings in the compose file.
+Define initial port mappings in the Compose file or pass
+`yeet run -p HOST:CONTAINER <svc> ./compose.yml` to set the mappings for the
+Compose service named `<svc>`. The `ports` list saved in `yeet.toml` is reapplied
+on redeploy, including local Compose uploads. Include every mapping you want
+to keep when supplying a port list.
+
 After deployment, use `yeet service set <svc> -p HOST:CONTAINER` to replace the
 yeet-managed published-port list for the primary service. The list is complete,
 so include every mapping you want to keep.
@@ -32,6 +37,15 @@ so include every mapping you want to keep.
 ```bash
 yeet service set <svc> -p 80:80 -p 443:443
 yeet service set <svc> --publish-reset -p 443:443
+```
+
+With `--env-file`, yeet uploads the environment before the Compose payload.
+The first payload selects its initial network even if only the environment has
+been uploaded so far. If that payload upload is interrupted, rerun the same
+command; the staged environment and configured service root are retained.
+
+```bash
+yeet run --env-file=./app.env <svc> ./compose.yml --net=lan,ts --ts-tags=tag:app
 ```
 
 ## Docker images

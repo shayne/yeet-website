@@ -3,6 +3,17 @@ title: Changelog
 description: Release notes for users deciding whether to install or upgrade.
 ---
 
+## September 7, 2026
+
+### v0.11.11
+
+- First deployments can choose their initial network settings after uploading
+  an environment file, including when retrying a failed payload upload.
+  Network settings for services with an existing payload remain protected.
+- Local Docker Compose deployments accept `-p` port mappings for the Compose
+  service matching the Yeet service name. Port mappings saved in `yeet.toml`
+  are reapplied on redeploy.
+
 ## August 23, 2026
 
 ### v0.11.10
